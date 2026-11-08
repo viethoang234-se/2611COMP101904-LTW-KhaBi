@@ -1,6 +1,6 @@
-using QuanLyMuonTra.App.Data;
-using QuanLyMuonTra.App.Forms;
+﻿using QuanLyMuonTra.App.Forms;
 using QuanLyMuonTra.App.Models;
+using QuanLyMuonTra.App.Services;
 using QuanLyMuonTra.UI;
 
 namespace QuanLyMuonTra.App.Pages;
@@ -45,7 +45,9 @@ public partial class DevicePage : ThemedUserControl
 
     private void LoadCategories()
     {
-        var categories = DeviceRepository.GetCategories();
+        var result = DeviceService.Categories();
+        if (!result.Success) throw new InvalidOperationException(result.Error);
+        var categories = result.Value ?? new List<CategoryItem>();
         categories.Insert(0, new CategoryItem { CategoryId = 0, CategoryName = "Tất cả loại" });
 
         _loadingCategories = true;
@@ -62,8 +64,10 @@ public partial class DevicePage : ThemedUserControl
 
         try
         {
-            var rows = await Task.Run(() => DeviceRepository.Search(keyword, categoryId));
+            var result = await Task.Run(() => DeviceService.Search(keyword, categoryId));
             if (IsDisposed) return;
+            if (!result.Success) { ShowError(result.Error); return; }
+            var rows = result.Value ?? new List<DeviceRow>();
 
             dgvDevices.DataSource = rows;
             lblCount.Text = $"Hiển thị {rows.Count} thiết bị";
@@ -119,10 +123,10 @@ public partial class DevicePage : ThemedUserControl
 
         try
         {
-            string? error = await Task.Run(() => DeviceRepository.Delete(row.DeviceId));
-            if (error != null)
+            var result = await Task.Run(() => DeviceService.Delete(row.DeviceId));
+            if (!result.Success)
             {
-                MessageBox.Show(FindForm(), error, "Không thể xóa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(FindForm(), result.Error, "Không thể xóa", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
             await ReloadAsync();

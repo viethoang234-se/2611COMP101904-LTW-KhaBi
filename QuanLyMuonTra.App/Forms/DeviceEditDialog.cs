@@ -1,5 +1,5 @@
-using QuanLyMuonTra.App.Data;
-using QuanLyMuonTra.App.Models;
+﻿using QuanLyMuonTra.App.Models;
+using QuanLyMuonTra.App.Services;
 using QuanLyMuonTra.UI;
 
 namespace QuanLyMuonTra.App.Forms;
@@ -24,12 +24,16 @@ public partial class DeviceEditDialog : ThemedForm
         _existing = existing;
         if (IsDesigning) return;
 
-        cboCategory.DataSource = DeviceRepository.GetCategories();
+        var categories = DeviceService.Categories();
+        if (!categories.Success) { ShowError(categories.Error); return; }
+        cboCategory.DataSource = categories.Value;
 
         if (existing is null)
         {
             Text = lblTitle.Text = "Thêm thiết bị";
-            txtCode.Text = DeviceRepository.SuggestCode();
+            var suggested = DeviceService.SuggestCode();
+            if (suggested.Success) txtCode.Text = suggested.Value ?? "";
+            else ShowError(suggested.Error);
             nudQuantity.Value = 1;
             txtUnit.Text = "Cái";
         }
@@ -69,11 +73,8 @@ public partial class DeviceEditDialog : ThemedForm
         lblError.Text = "";
         try
         {
-            string? error = await Task.Run(() => _existing is null
-                ? DeviceRepository.Insert(row)
-                : DeviceRepository.Update(row));
-
-            if (error != null) { ShowError(error); return; }
+            var result = await Task.Run(() => DeviceService.Save(row));
+            if (!result.Success) { ShowError(result.Error); return; }
             DialogResult = DialogResult.OK;
         }
         catch (Exception ex)

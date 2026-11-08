@@ -1,4 +1,4 @@
-using QuanLyMuonTra.App.Pages;
+﻿using QuanLyMuonTra.App.Pages;
 using QuanLyMuonTra.App.Security;
 using QuanLyMuonTra.UI;
 
@@ -20,14 +20,14 @@ public static class NavCatalog
 
         new("F07", "Quản lý thiết bị", "Danh mục", Icons.Device, Perm.DeviceManage, () => new DevicePage()),
         new("F06", "Loại thiết bị", "Danh mục", Icons.Tag, Perm.CategoryView,
-            () => Todo("F06", "Quản lý loại thiết bị", "Người quản lý thêm/sửa/xóa; Nhân viên kho chỉ được xem.")),
+            () => new CategoryPage()),
         new("F08", "Người mượn", "Danh mục", Icons.Contact, Perm.BorrowerManage,
-            () => Todo("F08", "Quản lý người mượn", "Hồ sơ người mượn: thêm, sửa, tìm kiếm.")),
+            () => new BorrowerPage()),
 
         new("F09", "Lập phiếu mượn", "Mượn trả", Icons.Add, Perm.LoanCreate,
-            () => Todo("F09", "Lập phiếu mượn", "Chọn người mượn, thêm thiết bị, hạn trả, ký tên.")),
+            () => new LoanCreatePage()),
         new("F10", "Tra cứu phiếu mượn", "Mượn trả", Icons.Search, Perm.LoanView,
-            () => Todo("F10", "Tra cứu phiếu mượn", "Tìm theo mã phiếu, người mượn, trạng thái; xem chi tiết (F11).")),
+            () => new LoanSearchPage()),
         new("F12", "Ghi nhận trả", "Mượn trả", Icons.Return, Perm.ReturnCreate,
             () => Todo("F12", "Ghi nhận trả thiết bị", "Chọn phiếu, nhập số lượng trả và tình trạng thiết bị.")),
         new("F13", "Biên bản trả / bàn giao", "Mượn trả", Icons.Document, Perm.RecordView,
