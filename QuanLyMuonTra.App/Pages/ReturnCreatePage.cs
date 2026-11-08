@@ -29,7 +29,8 @@ public sealed class ReturnCreatePage : ThemedUserControl
 
     async Task ReloadAsync()
     {
-        var result = await Task.Run(() => LoanService.SearchOpen(_keyword.Text));
+        var kw = _keyword.Text;
+        var result = await Task.Run(() => LoanService.SearchOpen(kw));
         if (IsDisposed) return;
         if (!result.Success) { PageUi.ShowError(FindForm(), result.Error); return; }
         _grid.DataSource = result.Value;

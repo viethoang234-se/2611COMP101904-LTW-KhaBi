@@ -33,12 +33,13 @@ public sealed class ReportPage : ThemedUserControl
             _summary.Text = "Tài khoản hiện tại chỉ có quyền in phiếu/biên bản, không có quyền xem báo cáo tổng hợp.";
             _inventory.Text = ""; _grid.DataSource = null; return;
         }
-        var r = await Task.Run(() => AdminService.Summary(_from.Value.Date, _to.Value.Date)); if (IsDisposed) return;
+        var fromDate = _from.Value.Date; var toDate = _to.Value.Date;
+        var r = await Task.Run(() => AdminService.Summary(fromDate, toDate)); if (IsDisposed) return;
         if (!r.Success) { PageUi.ShowError(FindForm(), r.Error); return; }
         var x = r.Value!;
         _summary.Text = $"Phiếu mượn: {x.SlipCount:N0}    Số lượng mượn: {x.BorrowedQuantity:N0}    Đã trả: {x.ReturnedQuantity:N0}    Còn phải trả: {x.OutstandingQuantity:N0}    Phiếu quá hạn: {x.OverdueSlipCount:N0}";
         _inventory.Text = $"Tồn kho hiện tại - Thiết bị đang hoạt động: {x.ActiveDeviceCount:N0}    Khả dụng: {x.AvailableQuantity:N0}    Hư hỏng: {x.DamagedQuantity:N0}    Mất: {x.LostQuantity:N0}";
-        var popular = await Task.Run(() => AdminService.PopularDevices(_from.Value.Date, _to.Value.Date, 10));
+        var popular = await Task.Run(() => AdminService.PopularDevices(fromDate, toDate, 10));
         if (!popular.Success) { PageUi.ShowError(FindForm(), popular.Error); return; }
         _grid.DataSource = popular.Value;
         PageUi.Header(_grid, (nameof(PopularDeviceRow.DeviceCode), "Mã thiết bị", 15), (nameof(PopularDeviceRow.DeviceName), "Thiết bị", 30),

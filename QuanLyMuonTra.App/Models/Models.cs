@@ -1,4 +1,4 @@
-﻿namespace QuanLyMuonTra.App.Models;
+namespace QuanLyMuonTra.App.Models;
 
 public sealed class AppUser
 {
@@ -32,6 +32,7 @@ public sealed class CategoryItem
 {
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = "";
+    public override string ToString() => CategoryName;
 }
 
 public sealed class DeviceRow

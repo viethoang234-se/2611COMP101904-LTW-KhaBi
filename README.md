@@ -1,46 +1,109 @@
-﻿# Quản lý mượn trả thiết bị (WinForms, .NET 10, SQL Server)
+# QUẢN LÝ MƯỢN TRẢ THIẾT BỊ
 
-## Yêu cầu
-- Visual Studio 2022 mới nhất (hoặc VS 2026) có workload **.NET desktop development**, hỗ trợ .NET 10 và file `.slnx`
-- SQL Server (Express/LocalDB đều được) + SSMS
+Ứng dụng desktop quản lý thiết bị, người mượn, phiếu mượn, trả thiết bị và biên bản bàn giao. Công nghệ: C# WinForms, .NET 10, SQL Server, Dapper.
 
-## Chạy thử (3 bước)
-1. Mở SSMS, chạy lần lượt các file trong `Database/`: `01` -> `02` -> `03` -> `04` -> `05` -> `06` (bắt buộc), `07` (dữ liệu thử, tùy chọn). Yêu cầu SQL Server 2017 trở lên. Chạy lại nhiều lần vẫn an toàn, kể cả khi nâng cấp từ CSDL cũ.
-2. Mở `QuanLyMuonTra.App/connection.txt`, sửa chuỗi kết nối nếu SQL Server của bạn không phải `localhost`
-   (ví dụ SQL Express: `Server=.\SQLEXPRESS;Database=QuanLyMuonTra;Trusted_Connection=True;TrustServerCertificate=True;`).
-3. Mở `QuanLyMuonTra.slnx` -> chuột phải Solution -> **Restore NuGet Packages** -> **Build Solution** -> đặt `QuanLyMuonTra.App` làm Startup Project -> F5.
+## 1. Yêu cầu môi trường
 
-Tài khoản mẫu: `admin / Admin@123` (Người quản lý), `kho01 / Kho@123` (Nhân viên kho). Hãy đổi mật khẩu khi dùng thật.
+- Windows 10/11.
+- Visual Studio có workload **.NET desktop development** và hỗ trợ .NET 10.
+- SQL Server 2017 trở lên (Express/Developer/LocalDB đều có thể dùng).
+- SQL Server Management Studio (SSMS) hoặc công cụ chạy script SQL tương đương.
 
-## Đã có / chưa có
-| Form | Trạng thái |
-|---|---|
-| F01 Đăng nhập | Xong (đăng nhập thật qua SQL, băm mật khẩu PBKDF2, phân quyền) |
-| F02 Dashboard | Xong (4 thẻ thống kê + phiếu mượn gần đây) |
-| F07 Quản lý thiết bị | Xong; đã chuyển thao tác đọc/ghi qua `DeviceService` |
-| F06 Loại thiết bị | GĐ2: tìm kiếm, thêm, sửa, xóa có kiểm tra thiết bị đang sử dụng |
-| F08 Người mượn | GĐ2: tìm kiếm, thêm, sửa, ngừng hoạt động, xóa khi chưa có lịch sử, xem lịch sử mượn |
-| F09 Lập phiếu mượn | GĐ2: chọn người mượn, thêm nhiều thiết bị, kiểm tra tồn, tạo phiếu qua transaction |
-| F10 Tra cứu phiếu mượn | GĐ2: tìm theo từ khóa, ngày mượn, hạn trả, trạng thái |
-| F11 Chi tiết phiếu mượn | GĐ2: xem thiết bị, số lượng đã trả/còn lại và lịch sử trả |
-| F12-F18, F03-F05 | Chưa hoàn thiện; các mục còn lại vẫn là trang tạm |
+## 2. Cài đặt cơ sở dữ liệu
 
-## Ghi chú phiên bản GĐ2
-- Các màn hình GĐ2 gọi tầng `Services`; không thực hiện truy vấn SQL trực tiếp từ giao diện.
-- Mã phiếu mượn được cấp trong transaction khi lưu, không cấp trước khi lưu.
-- Sau khi cập nhật code, cần mở solution bằng Visual Studio, Restore NuGet và Build để xác nhận trên Windows/.NET 10.
+Mở SSMS, kết nối SQL Server và chạy lần lượt các script trong thư mục `Database`:
 
-## Cấu trúc
-- `QuanLyMuonTra.UI` - bộ control giao diện dùng chung (Theme sáng/tối, CardPanel, AppButton, AppTextBox, AppLabel, NavButton, StatCard, AppGrid...). Build xong sẽ hiện trong **Toolbox**.
-- `QuanLyMuonTra.App` - ứng dụng: `Forms/` (form), `Pages/` (trang nội dung UserControl), `Data/` (truy vấn SQL bằng Dapper), `Security/`, `Models/`.
+1. `01_CreateDatabase.sql`
+2. `02_CreateTables.sql`
+3. `03_Constraints.sql`
+4. `04_Indexes.sql`
+5. `05_StoredProcedures.sql`
+6. `06_SeedData.sql`
+7. `07_TestData.sql` (dữ liệu kiểm thử, có thể bỏ qua nếu không cần)
 
-## Thêm một trang mới (ví dụ F08 Người mượn)
-1. Chuột phải thư mục `Pages` -> Add -> User Control, đổi `: UserControl` thành `: ThemedUserControl`.
-2. Copy cách bố trí từ `DevicePage` (toolbar + CardPanel + DataGridView), gọi `AppGrid.Apply(grid)` khi Load.
-3. Mở `NavCatalog.cs`, thay `Todo(...)` của F08 bằng `() => new BorrowerPage()`.
+Không chạy script theo thứ tự ngược. Các script được thiết kế để chạy lại trong quá trình nâng cấp, nhưng nên sao lưu database trước khi cập nhật trên dữ liệu thật.
 
-## Lưu ý khi dùng Designer
-- Luôn **Build** trước khi mở Designer (control trong project UI cần được build).
-- Designer luôn hiển thị theme sáng; chế độ tối chỉ thấy khi chạy.
-- Icon dùng font "Segoe MDL2 Assets" (có sẵn trên Windows 10/11). Đổi icon: mở Character Map, chọn font đó, copy ký tự.
-- Đổi màu chủ đạo: sửa `Primary`/`PrimaryHover` trong `QuanLyMuonTra.UI/Theme.cs`.
+## 3. Cấu hình kết nối
+
+Mở `QuanLyMuonTra.App/connection.txt`, chỉnh chuỗi kết nối phù hợp với SQL Server trên máy.
+
+Ví dụ SQL Server Express:
+
+```text
+Server=.\SQLEXPRESS;Database=QuanLyMuonTra;Trusted_Connection=True;TrustServerCertificate=True;
+```
+
+Ví dụ LocalDB:
+
+```text
+Server=(localdb)\MSSQLLocalDB;Database=QuanLyMuonTra;Trusted_Connection=True;TrustServerCertificate=True;
+```
+
+## 4. Mở và chạy ứng dụng
+
+1. Mở `QuanLyMuonTra.slnx` bằng Visual Studio.
+2. Restore NuGet Packages.
+3. Đặt `QuanLyMuonTra.App` làm Startup Project.
+4. Build Solution.
+5. Nhấn F5 để chạy.
+
+## 5. Tài khoản mẫu
+
+| Tài khoản | Mật khẩu | Vai trò |
+|---|---|---|
+| `admin` | `Admin@123` | Người quản lý |
+| `kho01` | `Kho@123` | Nhân viên kho |
+
+Mật khẩu mẫu chỉ phục vụ kiểm thử. Đổi mật khẩu trước khi đưa vào sử dụng thật. Mật khẩu được lưu dưới dạng PBKDF2-SHA256, không lưu dạng văn bản thuần.
+
+## 6. Danh sách chức năng
+
+| Mã | Chức năng | Trạng thái trong source |
+|---|---|---|
+| F01 | Đăng nhập, kiểm tra tài khoản và quyền | Đã có |
+| F02 | Tổng quan | Đã có |
+| F04 | Quản lý tài khoản: tạo, sửa, khóa/mở khóa, đặt lại mật khẩu | Đã triển khai |
+| F05 | Quản lý nhóm quyền và gán quyền chức năng | Đã triển khai |
+| F06 | Quản lý loại thiết bị | Đã triển khai |
+| F07 | Quản lý thiết bị | Đã có, dùng DeviceService |
+| F08 | Quản lý người mượn và lịch sử mượn | Đã triển khai |
+| F09 | Lập phiếu mượn nhiều thiết bị | Đã triển khai, có transaction và kiểm tra tồn kho |
+| F10 | Tra cứu phiếu mượn | Đã triển khai |
+| F11 | Chi tiết phiếu mượn và lịch sử trả | Đã triển khai |
+| F12 | Ghi nhận trả thiết bị, tình trạng và số lượng | Đã triển khai, có transaction |
+| F13 | Tra cứu, xem và hủy biên bản trả | Đã triển khai, hủy có lý do và kiểm tra tồn kho |
+| F14 | Danh sách phiếu quá hạn | Đã triển khai, gọi stored procedure |
+| F15 | Báo cáo tổng hợp, xem trước/in phiếu mượn và biên bản trả | Đã triển khai |
+| F16 | Cấu hình mã tự động | Đã triển khai |
+| F18 | Thống kê thiết bị được mượn nhiều | Đã triển khai |
+
+## 7. Kiến trúc source
+
+- `QuanLyMuonTra.UI`: control giao diện, theme sáng/tối và style dùng chung.
+- `QuanLyMuonTra.App/Forms`: form đăng nhập, form chính và các hộp thoại.
+- `QuanLyMuonTra.App/Pages`: các màn hình chức năng.
+- `QuanLyMuonTra.App/Services`: xử lý nghiệp vụ và kiểm tra quyền.
+- `QuanLyMuonTra.App/Data`: truy vấn SQL Server bằng Dapper.
+- `QuanLyMuonTra.App/Models`: DTO và model dữ liệu.
+- `QuanLyMuonTra.App/Security`: phiên đăng nhập, quyền và băm mật khẩu.
+- `Database`: script tạo database, bảng, constraint, index, view, stored procedure và dữ liệu mẫu.
+
+## 8. Quy tắc nghiệp vụ chính
+
+- Lập phiếu mượn và ghi nhận trả được thực hiện trong transaction.
+- Số lượng mượn không được vượt quá số lượng khả dụng.
+- Số lượng trả không được vượt số còn phải trả trên từng dòng phiếu.
+- Thiết bị trả tốt được cộng lại vào khả dụng; hư hỏng/thiếu phụ kiện được đưa vào nhóm hư hỏng; mất được đưa vào nhóm mất.
+- Hủy biên bản trả chỉ thành công nếu có thể hoàn tác an toàn tồn kho; không xóa cứng biên bản.
+- Trạng thái quá hạn được tính theo hạn trả và số lượng còn chưa trả.
+- Quyền được kiểm tra ở cả menu giao diện và tầng Services.
+
+## 9. Kiểm thử và giới hạn xác nhận
+
+Xem `docs/TEST_CASES.md` để biết các ca kiểm thử đề xuất. Source đã được rà soát tĩnh và đóng gói; môi trường tạo source không có Windows/.NET SDK/SQL Server nên chưa xác nhận Build, chạy giao diện hoặc thực thi truy vấn trên SQL Server. Nhóm cần thực hiện các bước kiểm thử trên máy Windows trước khi nộp.
+
+## 10. Tài liệu bàn giao
+
+- `docs/TEST_CASES.md`: danh sách ca kiểm thử.
+- `docs/BAO_CAO_NHOM_TEMPLATE.md`: khung báo cáo nhóm và phân công thành viên.
+- `docs/SLIDE_OUTLINE.md`: dàn ý slide thuyết trình.

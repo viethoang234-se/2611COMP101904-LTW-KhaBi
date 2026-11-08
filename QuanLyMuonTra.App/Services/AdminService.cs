@@ -1,4 +1,4 @@
-﻿using QuanLyMuonTra.App.Data;
+using QuanLyMuonTra.App.Data;
 using QuanLyMuonTra.App.Models;
 using QuanLyMuonTra.App.Security;
 
@@ -7,16 +7,30 @@ namespace QuanLyMuonTra.App.Services;
 /// <summary>BLL cho các chức năng quản trị và báo cáo F04/F05/F15/F16/F18.</summary>
 public static class AdminService
 {
+    static readonly System.Text.RegularExpressions.Regex EmailRx = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    static readonly System.Text.RegularExpressions.Regex PhoneRx = new(@"^[0-9+\-\s().]{8,20}$");
+    static readonly System.Text.RegularExpressions.Regex UserRx = new(@"^[A-Za-z0-9._-]+$");
+
+    static void CheckContact(string? email, string? phone, int roleId)
+    {
+        email = Svc.Clean(email); phone = Svc.Clean(phone);
+        if (email != null && (email.Length > 100 || !EmailRx.IsMatch(email))) throw new BusinessException("Email không hợp lệ.");
+        if (phone != null && !PhoneRx.IsMatch(phone)) throw new BusinessException("Số điện thoại không hợp lệ (8-20 ký tự, chỉ gồm chữ số và + - ( ) .).");
+        if (roleId <= 0) throw new BusinessException("Vui lòng chọn nhóm quyền.");
+    }
+
     public static Result<List<UserAdminRow>> Users(string? keyword) =>
         Svc.Run(new[] { Perm.UserManage }, () => AdminRepository.Users(keyword));
 
     public static Result CreateUser(string username, string password, string fullName, string? email, string? phone, int roleId) =>
         Svc.Run(new[] { Perm.UserManage }, () =>
         {
-            username = (username ?? "").Trim(); fullName = (fullName ?? "").Trim();
+            username = (username ?? "").Trim(); fullName = (fullName ?? "").Trim(); password ??= "";
             if (username.Length < 3 || username.Length > 50) throw new BusinessException("Tên đăng nhập phải từ 3 đến 50 ký tự.");
+            if (!UserRx.IsMatch(username)) throw new BusinessException("Tên đăng nhập chỉ gồm chữ không dấu, số, dấu chấm, gạch ngang hoặc gạch dưới.");
             if (password.Length < 8 || password.Length > 100) throw new BusinessException("Mật khẩu phải từ 8 đến 100 ký tự.");
             if (fullName.Length is < 2 or > 100) throw new BusinessException("Họ tên phải từ 2 đến 100 ký tự.");
+            CheckContact(email, phone, roleId);
             AdminRepository.CreateUser(username, password, fullName, Svc.Clean(email), Svc.Clean(phone), roleId);
         });
 
@@ -25,6 +39,7 @@ public static class AdminService
         {
             fullName = (fullName ?? "").Trim();
             if (fullName.Length is < 2 or > 100) throw new BusinessException("Họ tên phải từ 2 đến 100 ký tự.");
+            CheckContact(email, phone, roleId);
             AdminRepository.UpdateUser(id, fullName, Svc.Clean(email), Svc.Clean(phone), roleId);
         });
 
@@ -34,7 +49,7 @@ public static class AdminService
     public static Result ResetPassword(int id, string password) =>
         Svc.Run(new[] { Perm.UserManage }, () =>
         {
-            if (password.Length < 8 || password.Length > 100) throw new BusinessException("Mật khẩu mới phải từ 8 đến 100 ký tự.");
+            if (password == null || password.Length < 8 || password.Length > 100) throw new BusinessException("Mật khẩu mới phải từ 8 đến 100 ký tự.");
             AdminRepository.ResetPassword(id, password);
         });
 
@@ -52,7 +67,18 @@ public static class AdminService
         });
 
     public static Result SaveRolePermissions(int roleId, int[] ids) =>
-        Svc.Run(new[] { Perm.RoleManage }, () => AdminRepository.SaveRolePermissions(roleId, ids));
+        Svc.Run(new[] { Perm.RoleManage }, () =>
+        {
+            ids ??= Array.Empty<int>();
+            // Chặn tự khóa quyền quản trị: không bỏ quyền "Quản lý nhóm quyền" khỏi nhóm của chính mình.
+            if (Session.CurrentUser is { } me && me.RoleId == roleId)
+            {
+                var roleManageId = AdminRepository.Permissions().FirstOrDefault(x => x.Code == Perm.RoleManage)?.PermissionId;
+                if (roleManageId.HasValue && !ids.Contains(roleManageId.Value))
+                    throw new BusinessException("Không thể bỏ quyền quản lý nhóm quyền khỏi nhóm của chính bạn (sẽ bị khóa chức năng này).");
+            }
+            AdminRepository.SaveRolePermissions(roleId, ids.Distinct().ToArray());
+        });
 
     public static Result<List<CodeConfigRow>> CodeConfigs() => Svc.Run(new[] { Perm.CodeConfig }, AdminRepository.CodeConfigs);
     public static Result<string> PreviewCode(string entityName) => Svc.Run(new[] { Perm.CodeConfig }, () => AdminRepository.PreviewCode(entityName));

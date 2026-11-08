@@ -1,1 +1,1 @@
-Server=localhost;Database=QuanLyMuonTra;Trusted_Connection=True;TrustServerCertificate=True;
+Server=.\SQLEXPRESS;Database=QuanLyMuonTra;Trusted_Connection=True;TrustServerCertificate=True;

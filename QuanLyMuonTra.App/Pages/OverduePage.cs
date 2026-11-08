@@ -27,7 +27,8 @@ public sealed class OverduePage : ThemedUserControl
     async Task ReloadAsync()
     {
         int? min = _minDays.Value == 0 ? null : (int)_minDays.Value;
-        var result = await Task.Run(() => OverdueService.Get(_keyword.Text, min));
+        var kw = _keyword.Text;
+        var result = await Task.Run(() => OverdueService.Get(kw, min));
         if (IsDisposed) return;
         if (!result.Success) { PageUi.ShowError(FindForm(), result.Error); return; }
         _grid.DataSource = result.Value;

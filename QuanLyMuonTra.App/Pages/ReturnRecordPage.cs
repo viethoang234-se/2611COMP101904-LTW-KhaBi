@@ -37,9 +37,14 @@ public sealed class ReturnRecordPage : ThemedUserControl
         if (_from.Checked && _to.Checked && _from.Value.Date > _to.Value.Date)
         { PageUi.ShowError(FindForm(), "Khoảng ngày không hợp lệ."); return; }
         var opt = _status.SelectedItem as CancelOption;
-        var result = await Task.Run(() => ReturnService.Search(new RecordFilter { Keyword = _keyword.Text,
-            From = _from.Checked ? _from.Value.Date : null, To = _to.Checked ? _to.Value.Date : null, Cancelled = opt?.Value }));
-        if (IsDisposed) return;
+        var filter = new RecordFilter
+        {
+            Keyword = _keyword.Text,
+            From = _from.Checked ? _from.Value.Date : null,
+            To = _to.Checked ? _to.Value.Date : null,
+            Cancelled = opt?.Value
+        };
+        var result = await Task.Run(() => ReturnService.Search(filter));
         if (!result.Success) { PageUi.ShowError(FindForm(), result.Error); return; }
         _grid.DataSource = result.Value;
         PageUi.Header(_grid, (nameof(ReturnRecordRow.RecordCode), "Mã biên bản", 15), (nameof(ReturnRecordRow.SlipCode), "Mã phiếu", 14),

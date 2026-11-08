@@ -41,12 +41,13 @@ public sealed class BorrowerPage : ThemedUserControl
 
     async Task ReloadAsync()
     {
-        var result = await Task.Run(() => BorrowerService.Search(_search.Text, _includeInactive.Checked));
+        var kw = _search.Text; var includeInactive = _includeInactive.Checked;
+        var result = await Task.Run(() => BorrowerService.Search(kw, includeInactive));
         if (IsDisposed) return;
         if (!result.Success) { PageUi.ShowError(FindForm(), result.Error); return; }
         _grid.DataSource = result.Value;
         PageUi.Header(_grid, (nameof(BorrowerRow.BorrowerCode), "Mã", 13), (nameof(BorrowerRow.FullName), "Họ và tên", 23),
-            (nameof(BorrowerRow.Phone), "Điện thoại", 14), (nameof(BorrowerRow.Email), "Email", 20),
+            (nameof(BorrowerRow.Phone), "Điện thoại", 14), (nameof(BorrowerRow.Email), "Thư điện tử", 20),
             (nameof(BorrowerRow.Department), "Đơn vị", 16), (nameof(BorrowerRow.LoanCount), "Số phiếu", 8),
             (nameof(BorrowerRow.IsActive), "Hoạt động", 10));
         PageUi.HideColumns(_grid, nameof(BorrowerRow.BorrowerId), nameof(BorrowerRow.Address), nameof(BorrowerRow.Note));

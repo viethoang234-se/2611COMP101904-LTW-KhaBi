@@ -57,3 +57,18 @@
 
 - Chưa thể Build hoặc chạy WinForms trong môi trường hiện tại vì không có .NET SDK/Windows.
 - Chưa thực thi các truy vấn mới trên SQL Server. Cần kiểm thử quyền truy cập theo hai tài khoản mẫu, thao tác phân quyền, sinh mã sau khi thay cấu hình và in/xem trước trên máy Windows.
+
+## GĐ5 - Tài liệu và bàn giao
+
+- Cập nhật README: yêu cầu môi trường, cài đặt database, cấu hình kết nối, chạy ứng dụng, tài khoản mẫu, kiến trúc và danh sách chức năng.
+- Bổ sung `docs/TEST_CASES.md` với các ca kiểm thử chức năng và kiểm thử đồng thời.
+- Bổ sung `docs/BAO_CAO_NHOM_TEMPLATE.md` làm khung báo cáo, có chỗ trống để nhóm điền thành viên và tỷ lệ đóng góp thực tế.
+- Bổ sung `docs/SLIDE_OUTLINE.md` làm dàn ý thuyết trình.
+- Các kết quả Build, kiểm thử giao diện và thực thi SQL Server vẫn cần nhóm xác nhận trên môi trường Windows/SQL Server; không đánh dấu các ca kiểm thử là đã chạy khi chưa thực hiện.
+
+## v5.2 - Sửa hiển thị và kiểm thử nhập sai
+- Sửa lỗi sau khi sửa tên nhóm quyền, danh sách nhóm hiện tên kiểu dài (`QuanLyMuonTra.App.Models.RoleRow`): đặt lại DisplayMember sau khi gán lại DataSource, thêm ToString() cho RoleRow, CategoryItem, BorrowerRow; thêm DisplayMember cho danh sách quyền.
+- Menu "Báo cáo & in ấn" hiện "Báo cáo _in ấn" do `&` bị hiểu là phím tắt -> đổi thành "Báo cáo".
+- Bổ sung kiểm tra: email/điện thoại/tên đăng nhập/nhóm quyền khi tạo-sửa tài khoản; chặn tự bỏ quyền quản lý nhóm quyền của chính mình; phiếu mượn không trùng thiết bị, SL tối đa, hạn trả tối đa 1 năm; biên bản trả không trùng dòng.
+- (v5.2 sửa lần 2) Form chi tiết phiếu/biên bản/lịch sử người mượn: tiêu đề và ẩn cột nay được áp dụng ngay khi cột được sinh (DataGridView sinh cột trễ nên trước đó bị bỏ qua, hiện tên biến). Sửa trong PageUi.Header/HideColumns cho mọi bảng.
+- Sửa NullReferenceException khi mở "Ghi nhận trả": khai báo cột thủ công cho bảng trong ReturnCreateDialog, thêm xử lý nhập sai số lượng.

@@ -28,11 +28,12 @@ public sealed class UserPage : ThemedUserControl
 
     async Task ReloadAsync()
     {
-        var result = await Task.Run(() => AdminService.Users(_keyword.Text)); if (IsDisposed) return;
+        var kw = _keyword.Text;
+        var result = await Task.Run(() => AdminService.Users(kw)); if (IsDisposed) return;
         if (!result.Success) { PageUi.ShowError(FindForm(), result.Error); return; }
         _grid.DataSource = result.Value;
         PageUi.Header(_grid, (nameof(UserAdminRow.Username), "Tài khoản", 16), (nameof(UserAdminRow.FullName), "Họ tên", 24),
-            (nameof(UserAdminRow.Email), "Email", 22), (nameof(UserAdminRow.Phone), "Điện thoại", 14),
+            (nameof(UserAdminRow.Email), "Thư điện tử", 22), (nameof(UserAdminRow.Phone), "Điện thoại", 14),
             (nameof(UserAdminRow.RoleName), "Nhóm quyền", 16), (nameof(UserAdminRow.IsActive), "Đang hoạt động", 12));
         PageUi.HideColumns(_grid, nameof(UserAdminRow.UserId), nameof(UserAdminRow.RoleId)); UpdateButtons();
     }

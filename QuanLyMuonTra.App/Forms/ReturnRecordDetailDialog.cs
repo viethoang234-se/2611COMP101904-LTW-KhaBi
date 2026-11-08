@@ -1,4 +1,5 @@
-﻿using QuanLyMuonTra.App.Models;
+﻿using QuanLyMuonTra.App.Pages;
+using QuanLyMuonTra.App.Models;
 using QuanLyMuonTra.UI;
 
 namespace QuanLyMuonTra.App.Forms;

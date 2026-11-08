@@ -9,7 +9,7 @@ namespace QuanLyMuonTra.App.Pages;
 public sealed class RolePage : ThemedUserControl
 {
     readonly ListBox _roles = new() { Dock = DockStyle.Fill, DisplayMember = nameof(RoleRow.RoleName) };
-    readonly CheckedListBox _permissions = new() { Dock = DockStyle.Fill, CheckOnClick = true, DisplayMember = nameof(PermissionRow.Name) };
+    readonly CheckedListBox _permissions = new() { Dock = DockStyle.Fill, CheckOnClick = true };
     readonly AppButton _add = PageUi.Button("Thêm nhóm", ButtonKind.Primary, 105);
     readonly AppButton _edit = PageUi.Button("Sửa tên", ButtonKind.Secondary, 90);
     readonly AppButton _save = PageUi.Button("Lưu quyền", ButtonKind.Primary, 110);
@@ -24,7 +24,7 @@ public sealed class RolePage : ThemedUserControl
         var right = new ThemedPanel { Dock = DockStyle.Fill, Padding = new Padding(8), Fill = PanelFill.Surface };
         var rightTools = new FlowLayoutPanel { Dock = DockStyle.Top, Height = 50 }; rightTools.Controls.Add(PageUi.Label("Quyền được cấp cho nhóm đang chọn", true)); rightTools.Controls.Add(_save);
         right.Controls.Add(_permissions); right.Controls.Add(rightTools);
-        var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Vertical, SplitterDistance = 320, Panel1MinSize = 240, Panel2MinSize = 350 };
+        var split = new SplitContainer { Dock = DockStyle.Fill, Size = new Size(1000, 600), Orientation = Orientation.Vertical, Panel1MinSize = 240, Panel2MinSize = 350, SplitterDistance = 320 };
         split.Panel1.Controls.Add(left); split.Panel2.Controls.Add(right); Controls.Add(split);
         _roles.SelectedIndexChanged += async (_, _) => await LoadRolePermissionsAsync();
         _add.Click += (_, _) => EditRole(null); _edit.Click += (_, _) => { if (Selected is { } r) EditRole(r); };
@@ -35,7 +35,7 @@ public sealed class RolePage : ThemedUserControl
     async Task InitializeAsync()
     {
         var p = await Task.Run(() => AdminService.Permissions()); if (!p.Success) { PageUi.ShowError(FindForm(), p.Error); return; }
-        _permissionRows = p.Value!; _permissions.DataSource = _permissionRows;
+        _permissionRows = p.Value!; _permissions.DisplayMember = nameof(PermissionRow.Name); _permissions.DataSource = _permissionRows;
         await ReloadRolesAsync();
     }
 
@@ -43,7 +43,7 @@ public sealed class RolePage : ThemedUserControl
     {
         int? selectedId = Selected?.RoleId;
         var r = await Task.Run(() => AdminService.Roles()); if (!r.Success) { PageUi.ShowError(FindForm(), r.Error); return; }
-        _roleRows = r.Value!; _roles.DataSource = null; _roles.DataSource = _roleRows;
+        _roleRows = r.Value!; _roles.DataSource = null; _roles.DisplayMember = nameof(RoleRow.RoleName); _roles.DataSource = _roleRows; _roles.DisplayMember = nameof(RoleRow.RoleName);
         if (selectedId.HasValue) _roles.SelectedItem = _roleRows.FirstOrDefault(x => x.RoleId == selectedId.Value);
         if (_roles.SelectedIndex < 0 && _roleRows.Count > 0) _roles.SelectedIndex = 0;
         _edit.Enabled = Selected is not null; _save.Enabled = Selected is not null;

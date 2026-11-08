@@ -1,4 +1,4 @@
-﻿using QuanLyMuonTra.App.Data;
+using QuanLyMuonTra.App.Data;
 using QuanLyMuonTra.App.Models;
 using QuanLyMuonTra.App.Security;
 
@@ -13,6 +13,7 @@ public static class ReturnService
     {
         if (r.LoanSlipId <= 0) return "Vui lòng chọn phiếu mượn.";
         if (r.ReturnDate.Date > DateTime.Today) return "Ngày trả không được ở tương lai.";
+        if (r.Items.GroupBy(x => x.LoanSlipDetailId).Any(g => g.Count() > 1)) return "Một dòng thiết bị chỉ được trả một lần trong biên bản.";
         if (r.Items.Count == 0) return "Chưa nhập số lượng trả cho thiết bị nào.";
         if (r.GiverName is { Length: > 100 }) return "Tên người giao tối đa 100 ký tự.";
         if (r.Note is { Length: > 255 }) return "Ghi chú tối đa 255 ký tự.";

@@ -33,11 +33,11 @@ public sealed class CodeConfigPage : ThemedUserControl
         var r = await Task.Run(() => AdminService.CodeConfigs()); if (IsDisposed) return;
         if (!r.Success) { PageUi.ShowError(FindForm(), r.Error); return; }
         _grid.DataSource = r.Value;
-        PageUi.Header(_grid, (nameof(CodeConfigRow.EntityName), "Đối tượng", 20), (nameof(CodeConfigRow.Prefix), "Tiền tố", 12),
+        PageUi.Header(_grid, (nameof(CodeConfigRow.EntityText), "Đối tượng", 20), (nameof(CodeConfigRow.Prefix), "Tiền tố", 12),
             (nameof(CodeConfigRow.UseDate), "Có ngày", 10), (nameof(CodeConfigRow.NumberLength), "Độ dài số", 10),
             (nameof(CodeConfigRow.CurrentNumber), "Số hiện tại", 12), (nameof(CodeConfigRow.ResetDaily), "Reset mỗi ngày", 12),
             (nameof(CodeConfigRow.LastResetDate), "Lần reset", 16));
-        PageUi.HideColumns(_grid, nameof(CodeConfigRow.ConfigId)); LoadSelected();
+        PageUi.HideColumns(_grid, nameof(CodeConfigRow.ConfigId), nameof(CodeConfigRow.EntityName)); LoadSelected();
     }
 
     void LoadSelected()

@@ -27,7 +27,7 @@ public sealed class UserEditDialog : ThemedForm
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, Padding = new Padding(16), ColumnCount = 2, RowCount = 0 };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 115)); layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
         Add(layout, "Tên đăng nhập", _username); if (user is null) Add(layout, "Mật khẩu", _password);
-        Add(layout, "Họ và tên", _name); Add(layout, "Email", _email); Add(layout, "Điện thoại", _phone); Add(layout, "Nhóm quyền", _role);
+        Add(layout, "Họ và tên", _name); Add(layout, "Thư điện tử", _email); Add(layout, "Điện thoại", _phone); Add(layout, "Nhóm quyền", _role);
         var save = new AppButton { Text = "Lưu", Kind = ButtonKind.Primary, Width = 100, Height = 38 };
         var footer = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 55, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) }; footer.Controls.Add(save);
         Controls.Add(layout); Controls.Add(footer); save.Click += (_, _) => Save();

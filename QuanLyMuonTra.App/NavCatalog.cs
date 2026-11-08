@@ -1,4 +1,4 @@
-﻿using QuanLyMuonTra.App.Pages;
+using QuanLyMuonTra.App.Pages;
 using QuanLyMuonTra.App.Security;
 using QuanLyMuonTra.UI;
 
@@ -35,7 +35,7 @@ public static class NavCatalog
         new("F14", "Phiếu quá hạn", "Mượn trả", Icons.Warning, Perm.OverdueView,
             () => new OverduePage()),
 
-        new("F15", "Báo cáo & in ấn", "Báo cáo", Icons.Print, Perm.ReportPrint,
+        new("F15", "Báo cáo", "Báo cáo", Icons.Print, Perm.ReportPrint,
             () => new ReportPage()),
         new("F18", "Thiết bị mượn nhiều", "Báo cáo", Icons.Chart, Perm.StatsView,
             () => new PopularDevicePage()),

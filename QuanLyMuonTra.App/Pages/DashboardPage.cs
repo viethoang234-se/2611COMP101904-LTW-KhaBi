@@ -49,7 +49,7 @@ public partial class DashboardPage : ThemedUserControl
         catch (Exception ex)
         {
             if (!IsDisposed)
-                MessageBox.Show(FindForm(), "Không tải được dữ liệu Dashboard:\n" + ex.Message,
+                MessageBox.Show(FindForm(), "Không tải được dữ liệu Tổng quan:\n" + ex.Message,
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }

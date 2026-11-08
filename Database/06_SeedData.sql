@@ -18,7 +18,7 @@ WHERE NOT EXISTS (SELECT 1 FROM dbo.Roles r WHERE r.RoleName = v.RoleName);
 INSERT INTO dbo.Permissions (Code, Name)
 SELECT v.Code, v.Name
 FROM (VALUES
-    ('DASHBOARD_VIEW',  N'Xem Dashboard'),
+    ('DASHBOARD_VIEW',  N'Xem Tổng quan'),
     ('USER_MANAGE',     N'Quản lý người dùng'),
     ('ROLE_MANAGE',     N'Quản lý nhóm quyền'),
     ('CATEGORY_VIEW',   N'Xem loại thiết bị'),
@@ -120,4 +120,8 @@ UPDATE dbo.CodeConfigs SET CurrentNumber = @maxDev WHERE EntityName = 'Device' A
 
 DECLARE @maxBor INT = ISNULL((SELECT MAX(TRY_CAST(SUBSTRING(BorrowerCode, 3, 20) AS INT)) FROM dbo.Borrowers WHERE BorrowerCode LIKE 'NM[0-9]%'), 0);
 UPDATE dbo.CodeConfigs SET CurrentNumber = @maxBor WHERE EntityName = 'Borrower' AND Prefix = 'NM' AND CurrentNumber < @maxBor;
+GO
+
+/* Đổi tên quyền cũ sang tiếng Việt (cho CSDL đã tạo từ trước) */
+UPDATE dbo.Permissions SET Name = N'Xem Tổng quan' WHERE Code = 'DASHBOARD_VIEW';
 GO

@@ -1,4 +1,4 @@
-﻿using QuanLyMuonTra.App.Data;
+using QuanLyMuonTra.App.Data;
 using QuanLyMuonTra.App.Models;
 using QuanLyMuonTra.App.Security;
 
@@ -12,6 +12,7 @@ public static class LoanService
     /// <summary>Kiểm tra dữ liệu phiếu mượn trước khi mở transaction. Trả về thông báo lỗi hoặc null nếu hợp lệ.</summary>
     public static string? Validate(NewLoanSlip s)
     {
+        if (s == null || s.Items == null) return "Dữ liệu phiếu mượn không hợp lệ.";
         if (s.BorrowerId <= 0) return "Vui lòng chọn người mượn.";
         if (s.BorrowDate.Date > DateTime.Today) return "Ngày mượn không được ở tương lai.";
         if (s.DueDate.Date < s.BorrowDate.Date) return "Ngày dự kiến trả không được trước ngày mượn.";
@@ -19,6 +20,9 @@ public static class LoanService
         if (s.Items.Count == 0) return "Phiếu mượn phải có ít nhất một thiết bị.";
         if (s.Items.Any(i => i.DeviceId <= 0)) return "Có dòng thiết bị không hợp lệ.";
         if (s.Items.Any(i => i.Quantity <= 0)) return "Số lượng mượn của mỗi thiết bị phải lớn hơn 0.";
+        if (s.Items.Any(i => i.Quantity > 100000)) return "Số lượng mượn quá lớn.";
+        if (s.Items.GroupBy(i => i.DeviceId).Any(g => g.Count() > 1)) return "Một thiết bị chỉ được xuất hiện một lần trong phiếu mượn.";
+        if (s.DueDate.Date > s.BorrowDate.Date.AddYears(1)) return "Hạn trả không được quá 1 năm kể từ ngày mượn.";
         return null;
     }
 

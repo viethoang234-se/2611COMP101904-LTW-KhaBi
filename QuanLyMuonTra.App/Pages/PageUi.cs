@@ -1,4 +1,4 @@
-﻿using QuanLyMuonTra.UI;
+using QuanLyMuonTra.UI;
 using System.Drawing;
 
 namespace QuanLyMuonTra.App.Pages;
@@ -29,20 +29,45 @@ internal static class PageUi
         return grid;
     }
 
+    sealed class GridSpec
+    {
+        public readonly Dictionary<string, (string Header, float Weight)> Headers = new();
+        public readonly HashSet<string> Hidden = new();
+    }
+    static readonly System.Runtime.CompilerServices.ConditionalWeakTable<DataGridView, GridSpec> Specs = new();
+
+    // DataGridView chỉ sinh cột tự động khi đã có handle/hiển thị; vì vậy ghi nhớ cấu hình và áp dụng mỗi khi có cột mới.
+    static GridSpec SpecOf(DataGridView grid)
+    {
+        if (Specs.TryGetValue(grid, out var spec)) return spec;
+        spec = new GridSpec(); Specs.Add(grid, spec);
+        grid.ColumnAdded += (_, _) => Apply(grid, spec);
+        grid.DataBindingComplete += (_, _) => Apply(grid, spec);
+        return spec;
+    }
+
+    static void Apply(DataGridView grid, GridSpec spec)
+    {
+        foreach (DataGridViewColumn col in grid.Columns)
+        {
+            string key = string.IsNullOrEmpty(col.DataPropertyName) ? col.Name : col.DataPropertyName;
+            if (spec.Headers.TryGetValue(key, out var h)) { col.HeaderText = h.Header; col.FillWeight = h.Weight; }
+            if (spec.Hidden.Contains(key)) col.Visible = false;
+        }
+    }
+
     public static void HideColumns(DataGridView grid, params string[] names)
     {
-        foreach (var name in names)
-            if (grid.Columns.Contains(name)) grid.Columns[name].Visible = false;
+        var spec = SpecOf(grid);
+        foreach (var name in names) spec.Hidden.Add(name);
+        Apply(grid, spec);
     }
 
     public static void Header(DataGridView grid, params (string Name, string Header, float Weight)[] columns)
     {
-        foreach (var c in columns)
-            if (grid.Columns.Contains(c.Name))
-            {
-                grid.Columns[c.Name].HeaderText = c.Header;
-                grid.Columns[c.Name].FillWeight = c.Weight;
-            }
+        var spec = SpecOf(grid);
+        foreach (var c in columns) spec.Headers[c.Name] = (c.Header, c.Weight);
+        Apply(grid, spec);
     }
 
     sealed class ThemedToolbar : FlowLayoutPanel

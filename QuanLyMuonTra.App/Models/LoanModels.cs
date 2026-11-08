@@ -1,4 +1,4 @@
-﻿namespace QuanLyMuonTra.App.Models;
+namespace QuanLyMuonTra.App.Models;
 
 /// <summary>Trạng thái hiển thị của phiếu mượn (tính từ dữ liệu, không lưu cứng).</summary>
 public enum LoanDisplayStatus
@@ -181,6 +181,7 @@ public sealed class BorrowerRow
     public string Note { get; set; } = "";
     public bool IsActive { get; set; } = true;
     public int LoanCount { get; set; }
+    public override string ToString() => string.IsNullOrWhiteSpace(BorrowerCode) ? FullName : $"{FullName} ({BorrowerCode})";
 }
 
 public sealed class CategoryRow

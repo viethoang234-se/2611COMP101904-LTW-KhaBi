@@ -85,7 +85,8 @@ public sealed class LoanCreatePage : ThemedUserControl
 
     async Task LoadDevicesAsync()
     {
-        var result = await Task.Run(() => DeviceService.SearchAvailable(_deviceSearch.Text));
+        var kw = _deviceSearch.Text;
+        var result = await Task.Run(() => DeviceService.SearchAvailable(kw));
         if (IsDisposed) return;
         if (!result.Success) { PageUi.ShowError(FindForm(), result.Error); return; }
         _deviceRows = result.Value ?? new(); _devices.DataSource = _deviceRows;

@@ -15,13 +15,16 @@ public sealed class PopularDevicePage : ThemedUserControl
     public PopularDevicePage()
     {
         var toolbar = PageUi.Toolbar(); toolbar.Controls.Add(PageUi.Label("Từ ngày")); toolbar.Controls.Add(_from); toolbar.Controls.Add(PageUi.Label("Đến ngày")); toolbar.Controls.Add(_to);
-        toolbar.Controls.Add(PageUi.Label("Top")); toolbar.Controls.Add(_top); toolbar.Controls.Add(_search);
+        toolbar.Controls.Add(PageUi.Label("Số dòng")); toolbar.Controls.Add(_top); toolbar.Controls.Add(_search);
         var card = PageUi.Card(); card.Controls.Add(_grid); Controls.Add(card); Controls.Add(toolbar);
         _search.Click += async (_, _) => await ReloadAsync(); Load += async (_, _) => { if (!IsDesigning) await ReloadAsync(); };
     }
     async Task ReloadAsync()
     {
-        var r = await Task.Run(() => AdminService.PopularDevices(_from.Checked ? _from.Value.Date : null, _to.Checked ? _to.Value.Date : null, (int)_top.Value));
+        DateTime? fromDate = _from.Checked ? _from.Value.Date : null;
+        DateTime? toDate = _to.Checked ? _to.Value.Date : null;
+        int top = (int)_top.Value;
+        var r = await Task.Run(() => AdminService.PopularDevices(fromDate, toDate, top));
         if (IsDisposed) return; if (!r.Success) { PageUi.ShowError(FindForm(), r.Error); return; }
         _grid.DataSource = r.Value;
         PageUi.Header(_grid, (nameof(PopularDeviceRow.DeviceCode), "Mã thiết bị", 15), (nameof(PopularDeviceRow.DeviceName), "Thiết bị", 30),

@@ -50,6 +50,7 @@ internal static class PrintHelper
             using var body = new Font("Arial", 9.5f);
             using var heading = new Font("Arial", 15, FontStyle.Bold);
             using var bold = new Font("Arial", 10, FontStyle.Bold);
+            using var noWrap = new StringFormat { FormatFlags = StringFormatFlags.NoWrap, Trimming = StringTrimming.EllipsisCharacter };
             float y = e.MarginBounds.Top;
             if (index == 0)
             {
@@ -61,7 +62,7 @@ internal static class PrintHelper
             {
                 string line = lines[index++];
                 e.Graphics.DrawString(line, line.StartsWith("CHI TIẾT") || line.StartsWith("Mã thiết bị") ? bold : body, Brushes.Black,
-                    new RectangleF(e.MarginBounds.Left, y, e.MarginBounds.Width, lineHeight * 2));
+                    new RectangleF(e.MarginBounds.Left, y, e.MarginBounds.Width, lineHeight), noWrap);
                 y += lineHeight;
             }
             e.HasMorePages = index < lines.Count;

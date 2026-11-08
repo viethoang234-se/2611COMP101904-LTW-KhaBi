@@ -18,6 +18,7 @@ public sealed class RoleRow
     public string RoleName { get; set; } = "";
     public string Description { get; set; } = "";
     public int UserCount { get; set; }
+    public override string ToString() => RoleName;
 }
 
 public sealed class PermissionRow
@@ -25,10 +26,12 @@ public sealed class PermissionRow
     public int PermissionId { get; set; }
     public string Code { get; set; } = "";
     public string Name { get; set; } = "";
+    public override string ToString() => Name;
 }
 
 public sealed class CodeConfigRow
 {
+    public string EntityText => EntityName switch { "LoanSlip" => "Phiếu mượn", "ReturnRecord" => "Biên bản trả", "Device" => "Thiết bị", "Borrower" => "Người mượn", _ => EntityName };
     public int ConfigId { get; set; }
     public string EntityName { get; set; } = "";
     public string Prefix { get; set; } = "";

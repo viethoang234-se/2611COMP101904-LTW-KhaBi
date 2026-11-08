@@ -1,4 +1,4 @@
-﻿using QuanLyMuonTra.App.Models;
+using QuanLyMuonTra.App.Models;
 using QuanLyMuonTra.App.Services;
 using QuanLyMuonTra.UI;
 
@@ -19,7 +19,7 @@ public sealed class ReturnCreateDialog : ThemedForm
     }
 
     readonly LoanSlipFull _slip;
-    readonly DataGridView _grid = new() { Dock = DockStyle.Fill, AutoGenerateColumns = true, AllowUserToAddRows = false, RowHeadersVisible = false };
+    readonly DataGridView _grid = new() { Dock = DockStyle.Fill, AutoGenerateColumns = false, AllowUserToAddRows = false, RowHeadersVisible = false };
     readonly DateTimePicker _date = new() { Format = DateTimePickerFormat.Short, Width = 130, Margin = new Padding(4) };
     readonly TextBox _giver = new() { Width = 220, Margin = new Padding(4) };
     readonly TextBox _note = new() { Width = 260, Margin = new Padding(4) };
@@ -52,8 +52,8 @@ public sealed class ReturnCreateDialog : ThemedForm
         tools.Controls.Add(new Label { Text = "Người giao", AutoSize = true, Margin = new Padding(4, 12, 2, 4) }); tools.Controls.Add(_giver);
         tools.Controls.Add(new Label { Text = "Ghi chú", AutoSize = true, Margin = new Padding(4, 12, 2, 4) }); tools.Controls.Add(_note);
         var bottom = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 56, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(8) }; bottom.Controls.Add(_save);
-        AppGrid.Apply(_grid); _grid.ReadOnly = false; _grid.DataSource = _lines;
-        ConfigureGrid();
+        AppGrid.Apply(_grid); _grid.ReadOnly = false;
+        ConfigureGrid(); _grid.DataSource = _lines;
         Controls.Add(_grid); Controls.Add(bottom); Controls.Add(tools); Controls.Add(info);
         _date.Value = DateTime.Today; _date.MaxDate = DateTime.Today;
         _save.Click += (_, _) => Save();
@@ -61,25 +61,16 @@ public sealed class ReturnCreateDialog : ThemedForm
 
     void ConfigureGrid()
     {
-        Set(nameof(Line.DeviceCode), "Mã thiết bị", false, 90);
-        Set(nameof(Line.DeviceName), "Tên thiết bị", false, 220);
-        Set(nameof(Line.Remaining), "Còn phải trả", false, 90);
-        Set(nameof(Line.ReturnQuantity), "Số lượng trả (0 = bỏ qua)", true, 130);
-        Set(nameof(Line.ConditionNote), "Ghi chú tình trạng", true, 200);
-        if (_grid.Columns[nameof(Line.ConditionName)] is DataGridViewTextBoxColumn old)
-        {
-            int index = old.Index; _grid.Columns.Remove(old);
-            var combo = new DataGridViewComboBoxColumn { Name = nameof(Line.ConditionName), DataPropertyName = nameof(Line.ConditionName), HeaderText = "Tình trạng", DataSource = Conditions, FlatStyle = FlatStyle.Flat, Width = 130 };
-            _grid.Columns.Insert(index, combo);
-        }
-        _grid.Columns[nameof(Line.LoanSlipDetailId)]!.Visible = false;
-        _grid.Columns[nameof(Line.ConditionName)]!.DisplayIndex = 4;
-    }
-
-    void Set(string name, string header, bool editable, int width)
-    {
-        if (!_grid.Columns.Contains(name)) return;
-        _grid.Columns[name]!.HeaderText = header; _grid.Columns[name]!.ReadOnly = !editable; _grid.Columns[name]!.Width = width;
+        _grid.Columns.Clear();
+        DataGridViewTextBoxColumn Text(string prop, string header, bool editable, int width) =>
+            new() { Name = prop, DataPropertyName = prop, HeaderText = header, ReadOnly = !editable, Width = width, SortMode = DataGridViewColumnSortMode.NotSortable };
+        _grid.Columns.Add(Text(nameof(Line.DeviceCode), "Mã thiết bị", false, 90));
+        _grid.Columns.Add(Text(nameof(Line.DeviceName), "Tên thiết bị", false, 220));
+        _grid.Columns.Add(Text(nameof(Line.Remaining), "Còn phải trả", false, 90));
+        _grid.Columns.Add(Text(nameof(Line.ReturnQuantity), "Số lượng trả (0 = bỏ qua)", true, 130));
+        _grid.Columns.Add(new DataGridViewComboBoxColumn { Name = nameof(Line.ConditionName), DataPropertyName = nameof(Line.ConditionName), HeaderText = "Tình trạng", DataSource = Conditions, FlatStyle = FlatStyle.Flat, Width = 130 });
+        _grid.Columns.Add(Text(nameof(Line.ConditionNote), "Ghi chú tình trạng", true, 200));
+        _grid.DataError += (_, e) => { e.ThrowException = false; MessageBox.Show(this, "Giá trị nhập không hợp lệ. Số lượng trả phải là số nguyên không âm.", "Nhập sai", MessageBoxButtons.OK, MessageBoxIcon.Warning); };
     }
 
     void Save()

@@ -39,7 +39,8 @@ public sealed class CategoryPage : ThemedUserControl
 
     async Task ReloadAsync()
     {
-        var result = await Task.Run(() => CategoryService.Search(_search.Text));
+        var kw = _search.Text;
+        var result = await Task.Run(() => CategoryService.Search(kw));
         if (IsDisposed) return;
         if (!result.Success) { PageUi.ShowError(FindForm(), result.Error); return; }
         _grid.DataSource = result.Value;

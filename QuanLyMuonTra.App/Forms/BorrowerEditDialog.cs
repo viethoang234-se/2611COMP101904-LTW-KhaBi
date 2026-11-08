@@ -10,7 +10,7 @@ public sealed class BorrowerEditDialog : ThemedForm
     readonly BorrowerRow _model;
     readonly AppTextBox _name = new() { PlaceholderText = "Họ và tên", Dock = DockStyle.Fill };
     readonly AppTextBox _phone = new() { PlaceholderText = "Số điện thoại", Dock = DockStyle.Fill };
-    readonly AppTextBox _email = new() { PlaceholderText = "Email", Dock = DockStyle.Fill };
+    readonly AppTextBox _email = new() { PlaceholderText = "Thư điện tử", Dock = DockStyle.Fill };
     readonly AppTextBox _department = new() { PlaceholderText = "Đơn vị / phòng ban", Dock = DockStyle.Fill };
     readonly AppTextBox _address = new() { PlaceholderText = "Địa chỉ", Dock = DockStyle.Fill };
     readonly AppTextBox _note = new() { PlaceholderText = "Ghi chú", Dock = DockStyle.Fill };
