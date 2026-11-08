@@ -1,0 +1,56 @@
+\chapter{TỔNG QUAN}
+
+\section{Giới thiệu đề tài}
+
+Trong công tác quản lý tài sản, vật tư và trang thiết bị dùng chung tại các trường học, phòng thí nghiệm, trung tâm đào tạo hoặc doanh nghiệp (như máy tính xách tay, máy chiếu, máy ảnh, micro, thiết bị mạng), hoạt động mượn và trả thiết bị diễn ra thường xuyên mỗi ngày. Nếu quản lý thủ công bằng sổ giấy hoặc các tệp bảng tính rời rạc, nhân viên kho rất dễ gặp tình trạng không nắm rõ số lượng khả dụng thực tế, cho mượn vượt tồn kho, khó theo dõi các phiếu trả nhiều đợt (trả một phần), thất lạc thông tin thiết bị hư hỏng/mất hoặc phát hiện trễ các phiếu mượn quá hạn.
+
+
+Đề tài “Xây dựng hệ thống quản lý mượn trả thiết bị” tập trung thiết kế và phát triển ứng dụng desktop chuyên biệt dành cho nhân viên kho và người quản lý. Phần mềm được xây dựng trên nền tảng C\# Windows Forms (.NET 10), sử dụng hệ quản trị cơ sở dữ liệu Microsoft SQL Server kết hợp thư viện truy cập dữ liệu Dapper và tổ chức mã nguồn theo kiến trúc phân lớp theo hướng MVP (Model – View – Presenter): View (Forms/Pages và thư viện UI), Presenter (Services), Model (Models và Data), cùng lớp Security hỗ trợ phiên đăng nhập và phân quyền. Bên cạnh bộ thư viện control tùy biến \code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra.\allowbreak{}UI} hỗ trợ giao diện Sáng/Tối (Light/Dark Mode), hệ thống cung cấp cơ chế phân quyền động theo chức năng (RBAC), sinh mã tự động an toàn đồng thời và in ấn phiếu mượn/biên bản bàn giao trực tiếp.
+
+
+\section{Mục tiêu đề tài}
+
+\begin{itemize}
+
+\item Xây dựng giao diện Windows Forms hiện đại, đồng nhất với hệ thống control bo góc, thẻ thống kê (StatCard), bảng dữ liệu có nhãn trạng thái (Badge) và hỗ trợ chuyển đổi chủ đề Sáng/Tối.
+
+\item Thiết kế cơ sở dữ liệu quan hệ chuẩn hóa gồm 12 bảng, 1 view tổng hợp và 3 stored procedure, tích hợp đầy đủ khóa chính, khóa ngoại, chỉ mục (index) và ràng buộc toàn vẹn (CHECK/UNIQUE).
+
+\item Kiểm soát chặt chẽ nghiệp vụ mượn trả bằng giao dịch SQL (Transaction) và cơ chế khóa bản ghi (UPDLOCK, HOLDLOCK), đảm bảo tồn kho khả dụng không bao giờ âm ngay cả khi nhiều nhân viên thao tác đồng thời.
+
+\item Hỗ trợ trả thiết bị linh hoạt (trả đủ hoặc trả một phần qua nhiều đợt), phân loại chính xác 4 tình trạng khi trả (Tốt, Hư hỏng, Mất, Thiếu phụ kiện) để tự động điều chuyển nhóm tồn kho tương ứng.
+
+\item Bảo mật thông tin đăng nhập bằng thuật toán băm mật khẩu PBKDF2-SHA256 kèm salt ngẫu nhiên; triển khai phân quyền động theo vai trò (Role-Based Access Control) kiểm tra kép ở cả giao diện và tầng nghiệp vụ.
+
+\item Cung cấp công cụ theo dõi phiếu quá hạn, báo cáo tổng hợp mượn trả – tồn kho, xếp hạng thiết bị được mượn nhiều và xem trước/in phiếu mượn, biên bản bàn giao.
+
+\end{itemize}
+
+\section{Phạm vi nghiên cứu}
+
+Phạm vi của hệ thống bao gồm 15 nhóm chức năng cốt lõi được đánh mã từ F01 đến F16 và F18 (trừ F03, F17 không nằm trong phạm vi): Đăng nhập và xác thực (F01), Bảng điều khiển Dashboard (F02), Quản lý người dùng (F04), Quản lý nhóm quyền và phân quyền (F05), Quản lý loại thiết bị (F06), Quản lý thiết bị (F07), Quản lý người mượn và lịch sử mượn (F08), Lập phiếu mượn nhiều thiết bị (F09), Tra cứu phiếu mượn (F10), Xem chi tiết phiếu mượn và lịch sử trả (F11), Ghi nhận trả thiết bị (F12), Quản lý và hủy biên bản trả (F13), Theo dõi phiếu quá hạn (F14), Báo cáo tổng hợp và in ấn (F15), Cấu hình mã tự động (F16) và Thống kê thiết bị mượn nhiều (F18).
+
+
+Những nội dung chưa nằm trong phiên bản hiện tại gồm: cổng web/ứng dụng di động cho người mượn tự đăng ký trực tuyến, tích hợp quét mã vạch/RFID phần cứng, gửi email/SMS nhắc hạn tự động, quản lý chi phí đền bù/sửa chữa tài chính và đồng bộ đa chi nhánh đám mây. Đây là các định hướng mở rộng trong tương lai.
+
+
+{\small\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.233\linewidth}|>{\raggedright\arraybackslash}p{0.737\linewidth}|}
+\caption{Đối tượng sử dụng hệ thống}\\
+\hline
+\rowcolor{gray!25}\textbf{\textbf{Nhóm đối tượng}} & \textbf{\textbf{Vai trò và nhu cầu sử dụng chính}} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{gray!25}\textbf{\textbf{Nhóm đối tượng}} & \textbf{\textbf{Vai trò và nhu cầu sử dụng chính}} \\ \hline
+\endhead
+\hline\endfoot
+Nhân viên kho & Thực hiện nghiệp vụ hằng ngày: xem Dashboard, tra cứu loại thiết bị, quản lý thiết bị và người mượn, lập phiếu mượn, ghi nhận trả, xem biên bản bàn giao, theo dõi phiếu quá hạn và in phiếu/biên bản. \\ \hline
+Người quản lý & Toàn quyền nghiệp vụ của nhân viên kho; quản lý tài khoản người dùng, thiết lập nhóm quyền và gán 17 quyền chức năng, hủy biên bản trả sai sót, cấu hình quy tắc sinh mã tự động và xem báo cáo/thống kê tổng hợp. \\ \hline
+Người mượn thiết bị & Cán bộ, giảng viên, sinh viên hoặc nhân viên các phòng ban có hồ sơ trong bảng Borrowers; nhận thiết bị, bàn giao trả và ký xác nhận trên phiếu mượn/biên bản in giấy (không trực tiếp đăng nhập phần mềm). \\ \hline
+\end{longtable}
+}
+
+\section{Phương pháp thực hiện}
+
+Nhóm áp dụng quy trình phát triển phần mềm theo 5 giai đoạn tăng trưởng (GĐ1 đến GĐ5) được ghi nhận chi tiết trong \code{CHANGELOG.\allowbreak{}md}. Trước tiên, nhóm khảo sát bài toán quản lý thiết bị, chuẩn hóa lược đồ cơ sở dữ liệu và xây dựng bộ khung giao diện dùng chung (\code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra.\allowbreak{}UI}). Tiếp theo, nhóm lần lượt hiện thực hóa phân hệ danh mục, phân hệ lập phiếu mượn, phân hệ trả thiết bị – biên bản – quá hạn, và cuối cùng là phân hệ quản trị – báo cáo – in ấn. Toàn bộ quy tắc nghiệp vụ được rà soát tĩnh và đối chiếu với danh sách 35 ca kiểm thử tiêu chuẩn trong \code{docs/\allowbreak{}TEST\_\allowbreak{}CASES.\allowbreak{}md} [9], [10].
+

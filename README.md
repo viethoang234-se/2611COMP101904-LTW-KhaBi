@@ -1,5 +1,7 @@
 # QUẢN LÝ MƯỢN TRẢ THIẾT BỊ
 
+Đồ án cuối kỳ môn **Lập trình Windows** – nhóm **KháBí** – GVHD: ThS. Lê Thanh Thoại.
+
 Ứng dụng desktop quản lý thiết bị, người mượn, phiếu mượn, trả thiết bị và biên bản bàn giao. Công nghệ: C# WinForms, .NET 10, SQL Server, Dapper.
 
 ## 1. Yêu cầu môi trường
@@ -77,7 +79,16 @@ Mật khẩu mẫu chỉ phục vụ kiểm thử. Đổi mật khẩu trước 
 | F16 | Cấu hình mã tự động | Đã triển khai |
 | F18 | Thống kê thiết bị được mượn nhiều | Đã triển khai |
 
-## 7. Kiến trúc source
+## 7. Kiến trúc source (phân lớp theo hướng MVP)
+
+| Thành phần MVP | Thư mục | Vai trò |
+|---|---|---|
+| Model | `QuanLyMuonTra.App/Models`, `QuanLyMuonTra.App/Data` | DTO/model dữ liệu và truy vấn SQL Server bằng Dapper |
+| View | `QuanLyMuonTra.App/Forms`, `QuanLyMuonTra.App/Pages`, `QuanLyMuonTra.UI` | Giao diện WinForms, control dùng chung, theme sáng/tối |
+| Presenter (xử lý trung gian) | `QuanLyMuonTra.App/Services` | Nhận thao tác từ View, kiểm tra quyền và dữ liệu, gọi Data, trả `Result<T>` |
+
+Chi tiết từng thư mục:
+
 
 - `QuanLyMuonTra.UI`: control giao diện, theme sáng/tối và style dùng chung.
 - `QuanLyMuonTra.App/Forms`: form đăng nhập, form chính và các hộp thoại.
@@ -98,12 +109,25 @@ Mật khẩu mẫu chỉ phục vụ kiểm thử. Đổi mật khẩu trước 
 - Trạng thái quá hạn được tính theo hạn trả và số lượng còn chưa trả.
 - Quyền được kiểm tra ở cả menu giao diện và tầng Services.
 
-## 9. Kiểm thử và giới hạn xác nhận
+## 9. Kiểm thử
 
-Xem `docs/TEST_CASES.md` để biết các ca kiểm thử đề xuất. Source đã được rà soát tĩnh và đóng gói; môi trường tạo source không có Windows/.NET SDK/SQL Server nên chưa xác nhận Build, chạy giao diện hoặc thực thi truy vấn trên SQL Server. Nhóm cần thực hiện các bước kiểm thử trên máy Windows trước khi nộp.
+Ứng dụng đã được nhóm build và chạy kiểm thử trên Windows với .NET 10 và SQL Server. Danh sách 35 ca kiểm thử nằm trong `docs/TEST_CASES.md`; dữ liệu mẫu cho kiểm thử nằm trong `Database/07_TestData.sql`.
 
-## 10. Tài liệu bàn giao
+## 10. Thành viên và phân công
 
+**Nhóm KháBí** – Giảng viên hướng dẫn: ThS. Lê Thanh Thoại.
+
+| STT | Họ và tên | MSSV | Vai trò | Phụ trách chính |
+|---|---|---|---|---|
+| 1 | Đỗ Việt Hoàng | 51.01.104.031 | Trưởng nhóm | Viết giao diện, xử lý UI/UX |
+| 2 | Lê Hoàng Quân | 51.01.104.082 | Thành viên | Viết các hàm logic, đưa ra hướng đi cho nhóm |
+| 3 | Ngô Minh Hải | 51.01.104.022 | Thành viên | Kiểm thử phần mềm, viết báo cáo |
+
+Đóng góp của từng thành viên xem tại mục **Contributors** và lịch sử commit của repo. Tỷ lệ đóng góp chi tiết nằm trong báo cáo (`report/`, Bảng 0.2).
+
+## 11. Báo cáo và tài liệu
+
+- `report/`: mã nguồn LaTeX của báo cáo (biên dịch bằng `xelatex main.tex`, chạy hai lần để cập nhật mục lục). Bản PDF: `report/BaoCao_QuanLyMuonTra.pdf`.
 - `docs/TEST_CASES.md`: danh sách ca kiểm thử.
-- `docs/BAO_CAO_NHOM_TEMPLATE.md`: khung báo cáo nhóm và phân công thành viên.
 - `docs/SLIDE_OUTLINE.md`: dàn ý slide thuyết trình.
+- `CHANGELOG.md`: nhật ký các giai đoạn phát triển.

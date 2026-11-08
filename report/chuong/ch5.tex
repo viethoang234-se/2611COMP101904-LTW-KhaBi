@@ -1,0 +1,35 @@
+\chapter{TỔNG KẾT}
+
+\section{Kết quả đạt được}
+
+Đối chiếu với mã nguồn trên repository GitHub của nhóm, nhóm đã phân tích, thiết kế và xây dựng hoàn chỉnh ứng dụng desktop \textbf{Quản lý mượn trả thiết bị} trên nền tảng C\# Windows Forms (.NET 10) và SQL Server. Hệ thống đáp ứng đầy đủ 16 chức năng (F01–F02, F04–F16, F18) từ quản lý danh mục (loại thiết bị, thiết bị, người mượn), xử lý nghiệp vụ cốt lõi (lập phiếu mượn nhiều thiết bị, tra cứu, xem chi tiết, ghi nhận trả theo 4 tình trạng, quản lý và hủy biên bản bàn giao, theo dõi phiếu quá hạn) đến quản trị hệ thống (người dùng, nhóm quyền động RBAC, cấu hình mã tự động) và báo cáo – thống kê – in ấn.
+
+
+Về mặt kỹ thuật, cơ sở dữ liệu gồm 12 bảng, 1 view và 3 stored procedure được thiết kế có khả năng chạy lặp lại an toàn (idempotent scripts), kết hợp chặt chẽ giữa ràng buộc \code{CHECK/\allowbreak{}UNIQUE} ở tầng SQL và \code{Sql\allowbreak{}Transaction} có cơ chế tự động thử lại khi gặp Deadlock ở lớp Data (Model). Bộ thư viện giao diện riêng \code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra.\allowbreak{}UI} mang lại phong cách hiện đại, hỗ trợ chuyển đổi chủ đề Sáng/Tối mượt mà và không phụ thuộc thư viện giao diện thương mại.
+
+
+\section{Hạn chế}
+
+\begin{itemize}
+
+\item Truy cập dữ liệu hiện sử dụng Dapper và câu lệnh SQL tham số hóa; chưa tích hợp Entity Framework Core (\code{Db\allowbreak{}Context}/\code{LINQ to Entities}) nếu học phần có yêu cầu chấm điểm riêng cho ORM này.
+
+\item Biểu mẫu in ấn đang được vẽ trực tiếp bằng GDI+ (\code{Print\allowbreak{}Document} trong \code{Print\allowbreak{}Helper.\allowbreak{}cs}) và thống kê hiển thị dạng bảng số liệu; chưa tích hợp công cụ xuất tệp Excel (\code{.\allowbreak{}xlsx}), PDF trực tiếp hoặc biểu đồ trực quan trên trang báo cáo.
+
+\item Các cột chữ ký số (\code{Borrower\allowbreak{}Signature}, \code{Receiver\allowbreak{}Signature}) đã được thiết kế sẵn trong bảng \code{Loan\allowbreak{}Slips} và \code{Return\allowbreak{}Records} nhưng trên giao diện hiện tại mới dừng ở bước in khung ký tên trên giấy.
+
+\item Chưa có bộ cài đặt tự động (Installer/MSI) và hộp thoại cấu hình chuỗi kết nối SQL Server trực tiếp trên giao diện (hiện chỉnh sửa qua tệp \code{connection.\allowbreak{}txt}).
+
+\item Dự án chưa có bộ kiểm thử tự động (unit test/integration test); việc kiểm thử hiện thực hiện thủ công theo 35 ca trong \code{docs/TEST\_CASES.md} trên máy Windows có .NET 10 và SQL Server, kết quả chi tiết ghi tại Bảng 4.2.
+
+\end{itemize}
+
+\section{Hướng phát triển}
+
+Trong giai đoạn tiếp theo, hệ thống có thể được nâng cấp theo các hướng thiết thực: (1) Bổ sung chức năng xuất báo cáo tổng hợp và danh sách phiếu quá hạn ra tệp Excel (\code{.\allowbreak{}xlsx}) bằng thư viện ClosedXML hoặc EPPlus; (2) Vẽ biểu đồ trực quan thể hiện xu hướng mượn trả theo tháng và tỷ lệ thiết bị hư hỏng/mất ngay trên Dashboard và trang Báo cáo; (3) Tích hợp quét mã vạch (Barcode / QR Code) bằng đầu đọc USB hoặc camera để chọn nhanh thiết bị và người mượn khi lập phiếu; (4) Xây dựng hộp thoại kiểm tra và lưu cấu hình kết nối SQL Server ngay từ màn hình đăng nhập; và (5) Mở rộng cổng thông tin web hoặc dịch vụ gửi email tự động nhắc người mượn khi phiếu sắp đến hạn hoặc quá hạn trả.
+
+
+\section{Bài học kinh nghiệm}
+
+Quá trình phát triển đồ án giúp nhóm rút ra nhiều bài học thực tiễn: trong các hệ thống quản lý kho và tài sản, việc kiểm tra điều kiện trên giao diện là chưa đủ mà bắt buộc phải khóa bản ghi và kiểm tra điều kiện ngay trong câu lệnh \code{UPDATE} bên trong Transaction để chống xung đột đồng thời. Bên cạnh đó, việc tách bạch thư viện \code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra.\allowbreak{}UI} và lớp bọc nghiệp vụ \code{Svc.\allowbreak{}Run} giúp mã nguồn các trang giao diện ngắn gọn, dễ đọc, đồng nhất cách xử lý lỗi tiếng Việt và dễ dàng bảo trì qua nhiều giai đoạn.
+

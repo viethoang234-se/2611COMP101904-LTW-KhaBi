@@ -1,0 +1,6 @@
+BAO CAO LATEX - QUAN LY MUON TRA THIET BI
+Bien dich: xelatex main.tex  (chay 2 lan de cap nhat muc luc)
+Thong tin bia: thongtin.tex
+Bang 0.1 / 0.2: chuong/front.tex
+Chen anh: bo file anh vao images/ voi dung ten (hinh4_01_login.png ... hinh4_15_nguoidung_quyen.png), build lai la tu dong thay khung placeholder (khai bao trong \hinhanh o chuong/ch4.tex). Chap nhan .png hoac .jpg.
+Ket qua kiem thu: chuong/ch4.tex

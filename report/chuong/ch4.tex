@@ -1,0 +1,192 @@
+\chapter{TRIỂN KHAI VÀ KẾT QUẢ}
+
+\section{Môi trường phát triển}
+
+{\small\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.277\linewidth}|>{\raggedright\arraybackslash}p{0.693\linewidth}|}
+\caption{Công nghệ và môi trường triển khai}\\
+\hline
+\rowcolor{gray!25}\textbf{\textbf{Thành phần}} & \textbf{\textbf{Công nghệ hoặc yêu cầu}} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{gray!25}\textbf{\textbf{Thành phần}} & \textbf{\textbf{Công nghệ hoặc yêu cầu}} \\ \hline
+\endhead
+\hline\endfoot
+Hệ điều hành & Windows 10 / Windows 11 (64-bit) \\ \hline
+Ngôn ngữ \& Nền tảng & C\# trên .NET 10 (target framework: net10.0-windows) \\ \hline
+Công cụ phát triển (IDE) & Visual Studio 2022 / 2026 có workload .NET desktop development \\ \hline
+Giao diện Desktop (UI) & Windows Forms + Thư viện tự xây dựng QuanLyMuonTra.UI (GDI+, Segoe MDL2 Assets) \\ \hline
+Hệ quản trị CSDL & Microsoft SQL Server 2017 trở lên (Express / Developer / LocalDB) \\ \hline
+Truy cập dữ liệu (Model/Data) & Dapper 2.x kết hợp Microsoft.Data.SqlClient 6.x (ADO.NET) \\ \hline
+Bảo mật mật khẩu & PBKDF2-SHA256 (100.000 vòng lặp, Salt 16 byte, Key 32 byte) \\ \hline
+In ấn biểu mẫu & System.Drawing.Printing (PrintDocument \& PrintPreviewDialog) \\ \hline
+Quản lý cấu hình & Tệp văn bản connection.txt đặt cạnh tệp thực thi (.exe) \\ \hline
+\end{longtable}
+}
+
+\section{Cấu trúc Project}
+
+\subsection{Sơ đồ tổng quan cấu trúc thư mục}
+
+\begin{Verbatim}
+QuanLyMuonTra.slnx
+|-- QuanLyMuonTra.UI/        (Thư viện control & chủ đề Sáng/Tối)
+|   |-- Theme.cs, ThemedBase.cs, Surfaces.cs
+|   `-- Inputs.cs, Widgets.cs, Gfx.cs
+|-- QuanLyMuonTra.App/       (Ứng dụng chính Windows Forms)
+|   |-- Forms/               (LoginForm, MainForm, PrintHelper & 10 Dialog)
+|   |-- Pages/               (14 UserControl chức năng F02, F04–F16, F18)
+|   |-- Services/            (Presenter: nghiệp vụ & kiểm tra quyền)
+|   |-- Data/                (Model: truy vấn SQL Server với Dapper)
+|   |-- Models/              (DTO và các lớp bộ lọc truy vấn)
+|   |-- Security/            (Session.cs, Perm.cs, PasswordHasher.cs)
+|   |-- NavCatalog.cs, Program.cs, connection.txt
+|-- Database/                (01_CreateDatabase.sql -> 07_TestData.sql)
+`-- docs/                    (TEST_CASES.md, BAO_CAO_NHOM_TEMPLATE.md...)
+\end{Verbatim}
+
+\subsection{Vai trò của các thành phần}
+
+\code{Program.\allowbreak{}cs} khởi tạo cấu hình ứng dụng và chạy vòng lặp xác thực: mở \code{Login\allowbreak{}Form} để đăng nhập, nếu thành công thì khởi chạy \code{Main\allowbreak{}Form}; nếu người dùng nhấn \code{Đăng xuất} (\code{main.\allowbreak{}Logged\allowbreak{}Out == true}), chương trình xóa phiên \code{Session.\allowbreak{}End()} và quay lại \code{Login\allowbreak{}Form} mà không cần tắt ứng dụng. Các lớp trong \code{Pages/\allowbreak{}} đảm nhiệm từng màn hình nghiệp vụ lớn được nhúng vào \code{Main\allowbreak{}Form}, trong khi các hộp thoại trong \code{Forms/\allowbreak{}} (\code{Device\allowbreak{}Edit\allowbreak{}Dialog}, \code{Borrower\allowbreak{}Edit\allowbreak{}Dialog}, \code{Loan\allowbreak{}Slip\allowbreak{}Detail\allowbreak{}Dialog}, \code{Return\allowbreak{}Create\allowbreak{}Dialog}...) xử lý tác vụ nhập liệu hoặc xem chi tiết chuyên sâu.
+
+
+\section{Cấu hình và chạy chương trình}
+
+Bước 1: Cài đặt .NET 10 SDK, Visual Studio (có workload .NET desktop development) và Microsoft SQL Server (2017 trở lên). Bước 2: Mở SQL Server Management Studio (SSMS), kết nối tới SQL Server và chạy lần lượt các tập lệnh trong thư mục \code{Database/\allowbreak{}} theo đúng thứ tự từ \code{01\_\allowbreak{}Create\allowbreak{}Database.\allowbreak{}sql} đến \code{06\_\allowbreak{}Seed\allowbreak{}Data.\allowbreak{}sql} (và \code{07\_\allowbreak{}Test\allowbreak{}Data.\allowbreak{}sql} nếu muốn nạp 5 phiếu mượn và 3 biên bản kiểm thử). Bước 3: Mở tệp \code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra.\allowbreak{}App/\allowbreak{}connection.\allowbreak{}txt} và cập nhật chuỗi kết nối phù hợp với máy tính triển khai:
+
+
+\begin{Verbatim}
+Server=.\SQLEXPRESS;Database=QuanLyMuonTra;Trusted_Connection=True;TrustServerCertificate=True;
+\end{Verbatim}
+
+Bước 4: Mở solution \code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra.\allowbreak{}slnx} bằng Visual Studio hoặc sử dụng dòng lệnh .NET CLI để khôi phục gói NuGet, biên dịch và chạy ứng dụng:
+
+
+\begin{Verbatim}
+dotnet restore .\QuanLyMuonTra.slnx
+dotnet build .\QuanLyMuonTra.slnx
+dotnet run --project .\QuanLyMuonTra.App\QuanLyMuonTra.App.csproj
+\end{Verbatim}
+
+Bước 5: Đăng nhập thử nghiệm bằng hai tài khoản mẫu được tạo sẵn trong \code{06\_\allowbreak{}Seed\allowbreak{}Data.\allowbreak{}sql}: tài khoản Người quản lý (\code{admin} / \code{Admin@123}) hoặc tài khoản Nhân viên kho (\code{kho01} / \code{Kho@123}).
+
+
+\section{Chi tiết các chức năng quan trọng}
+
+\subsection{Kiểm soát truy cập, băm mật khẩu và phân quyền động}
+
+Quá trình xác thực tại \code{User\allowbreak{}Repository.\allowbreak{}Authenticate} truy vấn thông tin người dùng theo \code{Username}, kiểm tra mật khẩu thông qua \code{Password\allowbreak{}Hasher.\allowbreak{}Verify} (PBKDF2-SHA256 100.000 vòng lặp) và kiểm tra trạng thái \code{Is\allowbreak{}Active}. Nếu hợp lệ, danh sách mã quyền của vai trò tương ứng được nạp vào \code{Session}. Mọi phương thức ở Presenter (\code{Services}) đều đi qua hàm bọc \code{Svc.\allowbreak{}Run(permissions, work)}: nếu người dùng chưa đăng nhập hoặc không sở hữu ít nhất một quyền trong mảng yêu cầu, hàm lập tức trả về \code{Result.\allowbreak{}Fail("Bạn không có quyền thực hiện chức năng này.\allowbreak{}")} trước khi chạm tới cơ sở dữ liệu.
+
+
+\hinhanh{hinh4_01_login}{Giao diện đăng nhập và thông báo kiểm tra tài khoản/mật khẩu}{Nội dung cần chụp: Màn hình đăng nhập (LoginForm) khi nhập tài khoản admin/kho01 hoặc khi thông báo lỗi sai mật khẩu / tài khoản bị khóa\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Forms/LoginForm.cs)}
+
+\subsection{Lập phiếu mượn nhiều thiết bị và trừ tồn kho có điều kiện}
+
+Tại \code{Loan\allowbreak{}Create\allowbreak{}Page}, nhân viên có thể tìm kiếm nhanh các thiết bị còn tồn kho, chọn số lượng và thêm nhiều thiết bị vào giỏ mượn. Khi lưu phiếu, \code{Loan\allowbreak{}Service.\allowbreak{}Validate} kiểm tra người mượn hợp lệ, ngày mượn không ở tương lai (\code{Borrow\allowbreak{}Date \textless{}= Today}), hạn trả không trước ngày mượn (\code{Due\allowbreak{}Date \textgreater{}= Borrow\allowbreak{}Date}) và số lượng mỗi dòng lớn hơn 0. Tiếp đó, \code{Loan\allowbreak{}Repository.\allowbreak{}Create} mở transaction qua \code{Db.\allowbreak{}In\allowbreak{}Transaction}, sinh mã phiếu mới bằng \code{Code\allowbreak{}Repository.\allowbreak{}Next}, tạo bản ghi \code{Loan\allowbreak{}Slips} và duyệt qua từng thiết bị theo thứ tự \code{Device\allowbreak{}Id} tăng dần. Câu lệnh \code{UPDATE Devices SET Available\allowbreak{}Quantity = Available\allowbreak{}Quantity -\allowbreak{} @qty WHERE Device\allowbreak{}Id = @device\allowbreak{}Id AND Is\allowbreak{}Active = 1 AND Available\allowbreak{}Quantity \textgreater{}= @qty} bảo đảm việc kiểm tra và trừ tồn diễn ra nguyên tử (atomic); nếu \code{rows == 0}, toàn bộ giao dịch lập tức rollback.
+
+
+\hinhanh{hinh4_02_lapphieu}{Giao diện lập phiếu mượn nhiều thiết bị và giỏ thiết bị (F09)}{Nội dung cần chụp: Màn hình Lập phiếu mượn (LoanCreatePage) với danh sách thiết bị khả dụng bên trái và giỏ thiết bị chọn mượn bên phải\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/LoanCreatePage.cs)}
+
+\subsection{Ghi nhận trả theo tình trạng và hoàn tác khi hủy biên bản}
+
+Nghiệp vụ trả thiết bị (\code{Return\allowbreak{}Create\allowbreak{}Dialog} và \code{Return\allowbreak{}Repository.\allowbreak{}Create}) cho phép người mượn trả từng phần hoặc trả toàn bộ thiết bị trên phiếu, đồng thời cho phép tách một thiết bị thành các dòng trạng thái khác nhau (Tốt, Hư hỏng, Mất, Thiếu phụ kiện). Trong transaction, hệ thống khóa dòng \code{Loan\allowbreak{}Slips} và \code{Loan\allowbreak{}Slip\allowbreak{}Details} bằng \code{WITH (UPDLOCK, HOLDLOCK)}, kiểm tra tổng số lượng trả của từng mục không vượt số lượng còn nợ (\code{Quantity -\allowbreak{} Returned\allowbreak{}Quantity}), tạo biên bản \code{Return\allowbreak{}Records} + \code{Return\allowbreak{}Record\allowbreak{}Details}, tăng \code{Returned\allowbreak{}Quantity} và phân bổ số lượng vào đúng cột \code{Available\allowbreak{}Quantity}, \code{Damaged\allowbreak{}Quantity} hoặc \code{Lost\allowbreak{}Quantity}. Cuối cùng, câu lệnh \code{Recompute\allowbreak{}Status\allowbreak{}Sql} tự động chuyển \code{Loan\allowbreak{}Slips.\allowbreak{}Status = 1} nếu toàn bộ các dòng trong phiếu đã được trả đủ. Khi cần hủy một biên bản lập nhầm (\code{Return\allowbreak{}Repository.\allowbreak{}Cancel}), hệ thống kiểm tra tồn kho hiện tại có đủ để trừ ngược hay không trước khi hoàn tác và đánh dấu \code{Is\allowbreak{}Cancelled = 1}.
+
+
+\hinhanh{hinh4_03_ghinhantra}{Hộp thoại ghi nhận trả thiết bị theo tình trạng (F12)}{Nội dung cần chụp: Hộp thoại Ghi nhận trả (ReturnCreateDialog) hiển thị số lượng còn phải trả, cột chọn Tình trạng (Tốt/Hư hỏng/Mất/Thiếu phụ kiện) và ghi chú\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Forms/ReturnCreateDialog.cs)}
+
+\hinhanh{hinh4_04_inpreview}{Cửa sổ xem trước bản in phiếu mượn và biên bản bàn giao (F15)}{Nội dung cần chụp: Cửa sổ PrintPreviewDialog hiển thị mẫu in Phiếu mượn thiết bị hoặc Biên bản trả / bàn giao thiết bị kèm phần chữ ký\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Forms/PrintHelper.cs)}
+
+\subsection{Báo cáo tổng hợp, thống kê thiết bị mượn nhiều và in ấn}
+
+Chức năng báo cáo (\code{Report\allowbreak{}Page} và \code{Admin\allowbreak{}Repository.\allowbreak{}Summary}) tổng hợp đồng thời các chỉ số giao dịch trong kỳ lọc (\code{Slip\allowbreak{}Count}, \code{Borrowed\allowbreak{}Quantity}, \code{Returned\allowbreak{}Quantity}, \code{Outstanding\allowbreak{}Quantity}, \code{Overdue\allowbreak{}Slip\allowbreak{}Count}) và các chỉ số tồn kho hiện hành (\code{Active\allowbreak{}Device\allowbreak{}Count}, \code{Available\allowbreak{}Quantity}, \code{Damaged\allowbreak{}Quantity}, \code{Lost\allowbreak{}Quantity}), kết hợp hiển thị bảng xếp hạng Top thiết bị được mượn nhiều nhất. Đối với chức năng thống kê chuyên sâu (\code{Popular\allowbreak{}Device\allowbreak{}Page} – F18), người dùng có thể tùy chỉnh khoảng ngày và giới hạn \code{Top N} (từ 1 đến 100) để phân tích nhu cầu sử dụng thiết bị thực tế.
+
+
+\hinhanh{hinh4_05_baocao}{Màn hình báo cáo tổng hợp và thống kê thiết bị mượn nhiều (F15, F18)}{Nội dung cần chụp: Màn hình Báo cáo \& in ấn (ReportPage) hoặc Thiết bị mượn nhiều (PopularDevicePage) với các chỉ số tổng hợp dưới chân trang\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/ReportPage.cs, PopularDevicePage.cs)}
+
+\subsection{Sinh mã tự động an toàn đồng thời và chế độ sáng/tối}
+
+Màn hình \code{Code\allowbreak{}Config\allowbreak{}Page} (F16) quản lý bảng \code{Code\allowbreak{}Configs} và kết nối với thủ tục \code{dbo.\allowbreak{}sp\_\allowbreak{}Get\allowbreak{}Next\allowbreak{}Code}. Khi người dùng nhấn \code{Xem mã tiếp theo}, hệ thống gọi \code{Code\allowbreak{}Repository.\allowbreak{}Peek} (\code{@Peek = 1}) để hiển thị chuỗi mã dự kiến (ví dụ \code{PM-\allowbreak{}20261107-\allowbreak{}0001} hoặc \code{TB0009}) mà không làm tăng bộ đếm trong cơ sở dữ liệu. Ngoài ra, khi người dùng tự nhập tay mã thiết bị dạng \code{TB0012}, hàm \code{Code\allowbreak{}Repository.\allowbreak{}Sync\allowbreak{}Counter} tự động kéo \code{Current\allowbreak{}Number} lên theo số lớn nhất để các lần gợi ý sau không bị trùng. Về trải nghiệm thị giác, lớp \code{Theme} và \code{Theme\allowbreak{}Applier} cho phép chuyển đổi tức thời giữa giao diện Sáng (\code{\#F5F7FA} / \code{\#FFFFFF}) và giao diện Tối (\code{\#0F172A} / \code{\#1E293B}) ngay trên thanh tiêu đề.
+
+
+\hinhanh{hinh4_06_cauhinhma}{Màn hình cấu hình quy tắc sinh mã tự động và xem trước mã (F16)}{Nội dung cần chụp: Màn hình Cấu hình mã tự động (CodeConfigPage) với lưới 4 đối tượng (LoanSlip, ReturnRecord, Device, Borrower) và thanh chỉnh sửa phía dưới\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/CodeConfigPage.cs)}
+
+\hinhanh{hinh4_07_darkmode}{Giao diện chính khi chuyển đổi chế độ Sáng / Tối (ThemeMode)}{Nội dung cần chụp: Giao diện MainForm và nội dung trang khi kích hoạt chế độ Giao diện tối (Dark Mode)\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.UI/Theme.cs, QuanLyMuonTra.App/Forms/MainForm.cs)}
+
+\section{Hình ảnh sản phẩm thực tế}
+
+Các hình dưới đây là ảnh chụp màn hình thực tế khi chạy ứng dụng trên Windows, được sắp xếp theo thứ tự chức năng của hệ thống.
+
+
+\hinhanh{hinh4_08_dashboard_kho}{Màn hình Tổng quan (Dashboard F02) của tài khoản Nhân viên kho}{Nội dung cần chụp: Màn hình Dashboard khi đăng nhập bằng tài khoản kho01 (chỉ hiển thị các menu được phân quyền cho nhân viên kho)\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Forms/MainForm.cs, Pages/DashboardPage.cs)}
+
+\hinhanh{hinh4_09_dashboard_admin}{Màn hình Tổng quan (Dashboard F02) của tài khoản Người quản lý}{Nội dung cần chụp: Màn hình Dashboard khi đăng nhập bằng tài khoản admin (hiển thị đầy đủ 4 thẻ thống kê, danh sách phiếu gần đây và toàn bộ menu quản trị)\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Forms/MainForm.cs, Pages/DashboardPage.cs)}
+
+\hinhanh{hinh4_10_thietbi}{Giao diện quản lý danh mục thiết bị và lọc tồn kho (F07)}{Nội dung cần chụp: Màn hình Quản lý thiết bị (DevicePage) và hộp thoại Thêm/Sửa thiết bị (DeviceEditDialog)\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/DevicePage.cs, Forms/DeviceEditDialog.cs)}
+
+\hinhanh{hinh4_11_loaithietbi}{Giao diện quản lý loại thiết bị (F06)}{Nội dung cần chụp: Màn hình Loại thiết bị (CategoryPage) và hộp thoại Thêm/Cập nhật loại thiết bị (CategoryEditDialog)\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/CategoryPage.cs, Forms/CategoryEditDialog.cs)}
+
+\hinhanh{hinh4_12_nguoimuon}{Giao diện quản lý hồ sơ người mượn và lịch sử mượn (F08)}{Nội dung cần chụp: Màn hình Người mượn (BorrowerPage), hộp thoại BorrowerEditDialog và cửa sổ Lịch sử mượn (BorrowerHistoryDialog)\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/BorrowerPage.cs, Forms/BorrowerHistoryDialog.cs)}
+
+\hinhanh{hinh4_13_tracuuphieu}{Giao diện tra cứu phiếu mượn và hộp thoại chi tiết phiếu (F10, F11)}{Nội dung cần chụp: Màn hình Tra cứu phiếu mượn (LoanSearchPage) có badge trạng thái và hộp thoại Chi tiết phiếu mượn (LoanSlipDetailDialog)\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/LoanSearchPage.cs, Forms/LoanSlipDetailDialog.cs)}
+
+\hinhanh{hinh4_14_bienban_quahan}{Giao diện quản lý biên bản trả và danh sách phiếu quá hạn (F13, F14)}{Nội dung cần chụp: Màn hình Biên bản trả / bàn giao (ReturnRecordPage) và màn hình Phiếu quá hạn (OverduePage)\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/ReturnRecordPage.cs, OverduePage.cs)}
+
+\hinhanh{hinh4_15_nguoidung_quyen}{Giao diện quản lý người dùng và phân quyền nhóm quyền (F04, F05)}{Nội dung cần chụp: Màn hình Người dùng (UserPage) và màn hình Nhóm quyền (RolePage) với danh sách 17 quyền chức năng\\[2pt] (Thành phần mã nguồn: QuanLyMuonTra.App/Pages/UserPage.cs, RolePage.cs)}
+
+\section{Kiểm thử và đánh giá kết quả}
+
+Nhóm đã xây dựng tệp \code{Database/\allowbreak{}07\_\allowbreak{}Test\allowbreak{}Data.\allowbreak{}sql} (tạo sẵn 5 phiếu mượn từ \code{PM-\allowbreak{}0001} đến \code{PM-\allowbreak{}0005} và 3 biên bản trả từ \code{BB-\allowbreak{}0001} đến \code{BB-\allowbreak{}0003}, bao phủ các trạng thái: quá hạn chưa trả, đang mượn trong hạn, đã trả đủ, trả một phần và trả thiết bị hư hỏng) cùng tài liệu \code{docs/\allowbreak{}TEST\_\allowbreak{}CASES.\allowbreak{}md} gồm 35 ca kiểm thử chức năng và kịch bản kiểm thử đồng thời. Việc kiểm thử được thực hiện thủ công trên máy Windows với SQL Server Express và .NET 10; kết quả từng ca được ghi trong Bảng 4.2.
+
+{\small\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.046\linewidth}|>{\raggedright\arraybackslash}p{0.092\linewidth}|>{\raggedright\arraybackslash}p{0.339\linewidth}|>{\raggedright\arraybackslash}p{0.327\linewidth}|>{\raggedright\arraybackslash}p{0.098\linewidth}|>{\raggedright\arraybackslash}p{0.069\linewidth}|}
+\caption{Kết quả thực thi 35 kịch bản kiểm thử}\\
+\hline
+\rowcolor{gray!25}\textbf{\textbf{Mã TC}} & \textbf{\textbf{Chức năng}} & \textbf{\textbf{Dữ liệu / Thao tác kiểm thử}} & \textbf{\textbf{Kết quả kỳ vọng}} & \textbf{\textbf{Kết quả thực tế}} & \textbf{\textbf{Trạng thái}} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{gray!25}\textbf{\textbf{Mã TC}} & \textbf{\textbf{Chức năng}} & \textbf{\textbf{Dữ liệu / Thao tác kiểm thử}} & \textbf{\textbf{Kết quả kỳ vọng}} & \textbf{\textbf{Kết quả thực tế}} & \textbf{\textbf{Trạng thái}} \\ \hline
+\endhead
+\hline\endfoot
+TC01 & Đăng nhập & Đăng nhập admin với mật khẩu mẫu Admin@123 & Vào Dashboard với toàn quyền quản lý & Đúng kỳ vọng & Đạt \\ \hline
+TC02 & Đăng nhập & Nhập sai mật khẩu & Báo thông tin đăng nhập không hợp lệ & Đúng kỳ vọng & Đạt \\ \hline
+TC03 & Đăng nhập & Đăng nhập tài khoản bị khóa (IsActive = 0) & Từ chối đăng nhập và báo tài khoản bị khóa & Đúng kỳ vọng & Đạt \\ \hline
+TC04 & Phân quyền & Đăng nhập tài khoản kho01 (Kho@123) & Chỉ hiển thị các chức năng được cấp quyền & Đúng kỳ vọng & Đạt \\ \hline
+TC05 & F06 - Loại TB & Tạo loại thiết bị với mã mới hợp lệ & Lưu thành công và hiển thị trên lưới & Đúng kỳ vọng & Đạt \\ \hline
+TC06 & F06 - Loại TB & Tạo loại thiết bị trùng mã hoặc tên đang dùng & Báo trùng, không tạo bản ghi mới & Đúng kỳ vọng & Đạt \\ \hline
+TC07 & F07 - Thiết bị & Thêm thiết bị mới với số lượng hợp lệ & Lưu thành công, khả dụng bằng tổng số lượng & Đúng kỳ vọng & Đạt \\ \hline
+TC08 & F07 - Thiết bị & Sửa giảm tổng số lượng nhỏ hơn số đang mượn + hỏng/mất & Từ chối dữ liệu không hợp lệ & Đúng kỳ vọng & Đạt \\ \hline
+TC09 & F08 - Người mượn & Tạo người mượn mới với thông tin hợp lệ & Lưu thành công và cấp mã tự động NMxxxx & Đúng kỳ vọng & Đạt \\ \hline
+TC10 & F08 - Người mượn & Xóa người mượn đã có lịch sử phiếu mượn & Từ chối xóa, hướng dẫn chuyển ngừng hoạt động & Đúng kỳ vọng & Đạt \\ \hline
+TC11 & F09 - Lập phiếu & Lập phiếu mượn với 1 thiết bị đủ tồn khả dụng & Tạo phiếu thành công, giảm AvailableQuantity đúng SL & Đúng kỳ vọng & Đạt \\ \hline
+TC12 & F09 - Lập phiếu & Mượn số lượng lớn hơn số lượng khả dụng & Báo thiếu tồn kho; phiếu không được lưu & Đúng kỳ vọng & Đạt \\ \hline
+TC13 & F09 - Lập phiếu & Lập phiếu mượn gồm nhiều thiết bị khác nhau & Tạo 1 phiếu với đầy đủ các dòng chi tiết & Đúng kỳ vọng & Đạt \\ \hline
+TC14 & F10 / F11 & Tìm phiếu theo mã và mở hộp thoại chi tiết & Hiển thị đúng đầu phiếu, thiết bị và lịch sử trả & Đúng kỳ vọng & Đạt \\ \hline
+TC15 & F12 - Trả TB & Trả một phần thiết bị ở tình trạng Tốt & Tăng ReturnedQuantity và AvailableQuantity đúng SL & Đúng kỳ vọng & Đạt \\ \hline
+TC16 & F12 - Trả TB & Trả nốt phần còn lại ở tình trạng Tốt & Phiếu chuyển sang Đã trả; tồn kho khả dụng tăng đúng & Đúng kỳ vọng & Đạt \\ \hline
+TC17 & F12 - Trả TB & Trả thiết bị ở tình trạng Hư hỏng (kèm ghi chú) & Tăng DamagedQuantity, không tăng AvailableQuantity & Đúng kỳ vọng & Đạt \\ \hline
+TC18 & F12 - Trả TB & Trả thiết bị ở tình trạng Mất & Tăng LostQuantity, không tăng AvailableQuantity & Đúng kỳ vọng & Đạt \\ \hline
+TC19 & F12 - Trả TB & Trả tình trạng Hư hỏng / Thiếu phụ kiện nhưng trống ghi chú & Từ chối lưu và yêu cầu nhập ghi chú tình trạng & Đúng kỳ vọng & Đạt \\ \hline
+TC20 & F12 - Trả TB & Nhập số lượng trả vượt số lượng còn phải trả & Từ chối lưu; dữ liệu transaction không thay đổi & Đúng kỳ vọng & Đạt \\ \hline
+TC21 & F13 - Biên bản & Tra cứu biên bản trả theo mã biên bản / mã phiếu & Hiển thị đúng biên bản bàn giao tương ứng & Đúng kỳ vọng & Đạt \\ \hline
+TC22 & F13 - Biên bản & Hủy biên bản với lý do hợp lệ khi tồn kho cho phép & Biên bản chuyển Đã hủy, hoàn tác tồn kho và phiếu mượn & Đúng kỳ vọng & Đạt \\ \hline
+TC23 & F13 - Biên bản & Hủy biên bản sau khi thiết bị vừa trả đã được mượn lại & Từ chối hủy do không thể hoàn tác tồn kho an toàn & Đúng kỳ vọng & Đạt \\ \hline
+TC24 & F14 - Quá hạn & Mở danh sách phiếu quá hạn & Chỉ hiện các phiếu đã qua DueDate và còn thiết bị nợ & Đúng kỳ vọng & Đạt \\ \hline
+TC25 & F14 - Quá hạn & Lọc theo số ngày quá hạn tối thiểu & Chỉ hiển thị các phiếu có DaysOverdue \textgreater{}= mức lọc & Đúng kỳ vọng & Đạt \\ \hline
+TC26 & F04 - Tài khoản & Tạo tài khoản người dùng mới & Lưu thành công, mật khẩu được băm PBKDF2-SHA256 & Đúng kỳ vọng & Đạt \\ \hline
+TC27 & F04 - Tài khoản & Đặt lại mật khẩu cho tài khoản & Mật khẩu mới đăng nhập được, mật khẩu cũ hết hiệu lực & Đúng kỳ vọng & Đạt \\ \hline
+TC28 & F04 - Tài khoản & Thử tự khóa chính tài khoản đang đăng nhập & Hệ thống từ chối thao tác tự khóa & Đúng kỳ vọng & Đạt \\ \hline
+TC29 & F05 - Nhóm quyền & Thay đổi quyền của nhóm Nhân viên kho và lưu & Quyền lưu trong transaction và áp dụng ở lần đăng nhập kế & Đúng kỳ vọng & Đạt \\ \hline
+TC30 & F16 - Mã tự động & Đổi tiền tố mã và nhấn Xem mã tiếp theo & Mã xem trước sử dụng tiền tố mới, không tăng bộ đếm & Đúng kỳ vọng & Đạt \\ \hline
+TC31 & F16 - Mã tự động & Bật Reset mỗi ngày nhưng tắt Chèn ngày vào mã & Từ chối lưu cấu hình để ngăn trùng mã & Đúng kỳ vọng & Đạt \\ \hline
+TC32 & F15 - Báo cáo & Xem báo cáo tổng hợp theo khoảng ngày & Số liệu phiếu và tồn kho khớp với dữ liệu thực tế & Đúng kỳ vọng & Đạt \\ \hline
+TC33 & F15 - In ấn & Xem trước / in Phiếu mượn thiết bị & Bản in hiển thị đầy đủ đầu phiếu, chi tiết và mục ký tên & Đúng kỳ vọng & Đạt \\ \hline
+TC34 & F15 - In ấn & Xem trước / in Biên bản trả thiết bị & Bản in hiển thị đúng số lượng, tình trạng và mục ký tên & Đúng kỳ vọng & Đạt \\ \hline
+TC35 & F18 - Thống kê & Xem bảng xếp hạng thiết bị mượn nhiều & Sắp xếp đúng theo tổng số lượng mượn giảm dần & Đúng kỳ vọng & Đạt \\ \hline
+\end{longtable}
+}
+
+Kịch bản kiểm thử đồng thời (Concurrency Test): mở hai phiên ứng dụng bằng hai tài khoản nhân viên kho và cùng lập phiếu mượn một thiết bị khi số lượng khả dụng chỉ còn đủ cho một phiếu. Kết quả kỳ vọng: chỉ một giao dịch thành công, giao dịch còn lại nhận thông báo thiếu tồn kho, tồn kho không bị âm và không sinh phiếu mượn dở dang. Kết quả này được bảo đảm bởi câu lệnh \code{UPDATE} có điều kiện \code{Available\allowbreak{}Quantity >= @qty} trong cùng một transaction (nếu không cập nhật được dòng nào thì toàn bộ giao dịch rollback), cùng cơ chế khóa dòng theo thứ tự \code{Device\allowbreak{}Id} cố định và tự thử lại tối đa 3 lần khi gặp deadlock (mã lỗi 1205) tại \code{Db.\allowbreak{}In\allowbreak{}Transaction}. Kết quả thực hiện: đạt, đúng như kỳ vọng.
+
+\textbf{Môi trường kiểm thử.} Hệ điều hành: Windows; hệ quản trị cơ sở dữ liệu: SQL Server Express; công cụ: Visual Studio với .NET 10; người thực hiện kiểm thử: Ngô Minh Hải; ngày kiểm thử: 08/11/2026.
+
+\textbf{Đánh giá.} Cả 35 ca kiểm thử đều cho kết quả đúng với kỳ vọng (35/35 ca đạt), bao gồm các ca đăng nhập và phân quyền, quản lý danh mục, lập phiếu mượn, ghi nhận trả theo tình trạng, hủy biên bản, phiếu quá hạn, quản trị hệ thống, cấu hình mã tự động, báo cáo và in ấn. Các ràng buộc nghiệp vụ quan trọng (không mượn vượt tồn kho, không trả vượt số còn nợ, bắt buộc ghi chú khi thiết bị hư hỏng hoặc thiếu phụ kiện) đều được hệ thống từ chối đúng cách mà không làm thay đổi dữ liệu.

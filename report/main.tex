@@ -1,0 +1,77 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\setmonofont{TeX Gyre Cursor}
+\usepackage[top=2.5cm,bottom=2.5cm,left=3.2cm,right=2cm]{geometry}
+\usepackage{setspace}\setstretch{1.3}
+\usepackage{indentfirst}\setlength{\parindent}{1cm}\setlength{\parskip}{3pt}
+\usepackage{graphicx,float,longtable,array,colortbl,xcolor,booktabs}
+\usepackage{enumitem}\setlist{itemsep=2pt,topsep=3pt}
+\usepackage{titlesec}
+\titleformat{\chapter}[display]{\centering\bfseries\Large}{\MakeUppercase{\chaptername}\ \thechapter}{8pt}{\Large\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-10pt}{22pt}
+\titleformat{\section}{\bfseries\large}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\bfseries\normalsize}{\thesubsection.}{0.6em}{}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf,labelsep=period}
+\captionsetup[table]{position=top}
+\usepackage{fvextra}
+\fvset{fontsize=\footnotesize,breaklines=true,breakanywhere=true,frame=single,framesep=3pt,baselinestretch=1}
+\PassOptionsToPackage{hyphens}{url}
+\usepackage[hidelinks,unicode]{hyperref}
+\urlstyle{same}\Urlmuskip=0mu plus 1mu
+\usepackage{fancyhdr}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\small Báo cáo đồ án cuối kỳ -- Lập trình Windows}
+\fancyhead[R]{\small Quản lý mượn trả thiết bị}\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+\renewcommand{\chaptername}{Chương}
+\renewcommand{\contentsname}{MỤC LỤC}
+\renewcommand{\listtablename}{DANH MỤC BẢNG BIỂU}
+\renewcommand{\listfigurename}{DANH MỤC HÌNH ẢNH}
+\renewcommand{\tablename}{Bảng}
+\renewcommand{\figurename}{Hình}
+\renewcommand{\bibname}{TÀI LIỆU THAM KHẢO}
+\renewcommand{\appendixname}{Phụ lục}
+\counterwithin{table}{chapter}\counterwithin{figure}{chapter}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\hinhphu}[2]{\begin{figure}[H]\centering
+ \fbox{\parbox[c][5.2cm][c]{0.88\linewidth}{\centering\small\textbf{[ CHỪA CHỖ CHÈN ẢNH CHỤP MÀN HÌNH THỰC TẾ ]}\\[4pt] #2}}
+ \caption{#1}\end{figure}}
+\newcommand{\hinhanh}[3]{\IfFileExists{images/#1.png}{\begin{figure}[H]\centering\includegraphics[width=0.92\linewidth,height=0.45\textheight,keepaspectratio]{images/#1.png}\caption{#2}\end{figure}}{\IfFileExists{images/#1.jpg}{\begin{figure}[H]\centering\includegraphics[width=0.92\linewidth,height=0.45\textheight,keepaspectratio]{images/#1.jpg}\caption{#2}\end{figure}}{\hinhphu{#2}{#3}}}}
+\emergencystretch=3em
+\input{thongtin}
+\begin{document}
+\pagenumbering{gobble}
+\begin{titlepage}\centering
+{\bfseries\large TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH\\[4pt] KHOA CÔNG NGHỆ THÔNG TIN\par}
+\vspace{1cm}\includegraphics[width=5cm]{images/logo.png}\par\vspace{1.5cm}
+{\bfseries\Large BÁO CÁO ĐỒ ÁN CUỐI KỲ\par}\vspace{4pt}
+{\bfseries\large HỌC PHẦN: LẬP TRÌNH WINDOWS\par}\vspace{1cm}
+{\large ĐỀ TÀI: XÂY DỰNG HỆ THỐNG\par}\vspace{4pt}
+{\bfseries\LARGE QUẢN LÝ MƯỢN TRẢ THIẾT BỊ\par}\vspace{2cm}
+\begin{flushleft}\hspace{2.2cm}\begin{tabular}{@{}l@{\hspace{1em}}l@{}}
+\textbf{Giảng viên hướng dẫn:} & \gvhd\\[6pt]
+\textbf{Nhóm thực hiện:} & \tennhom\\[2pt]
+ & \begin{tabular}[t]{@{}l@{}}\thanhvien\end{tabular}
+\end{tabular}\end{flushleft}
+\vfill{\bfseries TP. Hồ Chí Minh, tháng 11 năm 2026}
+\end{titlepage}
+\pagenumbering{roman}
+\setcounter{page}{2}
+\input{chuong/front}
+\tableofcontents
+\clearpage\phantomsection\addcontentsline{toc}{chapter}{\listtablename}\listoftables
+\phantomsection\addcontentsline{toc}{chapter}{\listfigurename}\listoffigures
+\clearpage\pagenumbering{arabic}
+\input{chuong/ch1}
+\input{chuong/ch2}
+\input{chuong/ch3}
+\input{chuong/ch4}
+\input{chuong/ch5}
+\clearpage\phantomsection\addcontentsline{toc}{chapter}{TÀI LIỆU THAM KHẢO}
+\chapter*{TÀI LIỆU THAM KHẢO}
+\input{chuong/tltk}
+\input{chuong/phuluc}
+\input{chuong/phuluc_code}
+\end{document}

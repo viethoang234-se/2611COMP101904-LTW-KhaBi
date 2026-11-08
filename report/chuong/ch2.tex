@@ -1,0 +1,51 @@
+\chapter{CƠ SỞ LÝ THUYẾT}
+
+\section{Tổng quan ngôn ngữ lập trình C\#}
+
+C\# là ngôn ngữ lập trình hướng đối tượng, kiểu mạnh (strongly-typed) và hiện đại thuộc nền tảng .NET của Microsoft. Trong dự án này, C\# trên .NET 10 (\code{net10.\allowbreak{}0-\allowbreak{}windows}) được khai thác cùng các tính năng ngôn ngữ mới như \code{record} bất biến (\code{Nav\allowbreak{}Item}, \code{Created}, \code{Auth\allowbreak{}Result}), biểu thức \code{switch} đối sánh mẫu (pattern matching), \code{Nullable} reference types, \code{Implicit\allowbreak{}Usings}, \code{Generated\allowbreak{}Regex} biên dịch sẵn lúc build và lập trình bất đồng bộ \code{async/\allowbreak{}await} kết hợp \code{Task.\allowbreak{}Run} để giữ giao diện mượt mà khi truy vấn cơ sở dữ liệu [2].
+
+
+\section{WinForms, mô hình Page/Dialog và thư viện giao diện}
+
+Windows Forms (WinForms) là framework xây dựng ứng dụng desktop dựa trên cơ chế hướng sự kiện (event-driven) và kỹ thuật vẽ đồ họa GDI+ (\code{System.\allowbreak{}Drawing}, \code{System.\allowbreak{}Drawing.\allowbreak{}Drawing2D}). Thay vì mở hàng loạt cửa sổ rời rạc gây rối mắt, ứng dụng \code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra} tổ chức theo mô hình khung điều hướng tập trung (Single-Shell Navigation): cửa sổ chính \code{Main\allowbreak{}Form} đóng vai trò khung chứa thanh menu bên trái (\code{pnl\allowbreak{}Nav}), thanh tiêu đề phía trên và vùng nội dung động (\code{pnl\allowbreak{}Content}) nạp các \code{User\allowbreak{}Control} chức năng (\code{Pages}) tương ứng [1].
+
+
+Đặc biệt, nhóm tự xây dựng project thư viện giao diện riêng mang tên \code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra.\allowbreak{}UI} hoàn toàn không phụ thuộc vào các bộ thư viện thương mại bên thứ ba (như DevExpress hay Guna UI). Thư viện này cung cấp các lớp cơ sở \code{Themed\allowbreak{}Form}, \code{Themed\allowbreak{}User\allowbreak{}Control}, \code{Themed\allowbreak{}Panel}, \code{Card\allowbreak{}Panel} bo góc chống răng cưa (\code{Smoothing\allowbreak{}Mode.\allowbreak{}Anti\allowbreak{}Alias}), nút bấm \code{App\allowbreak{}Button} 3 trạng thái, ô nhập liệu \code{App\allowbreak{}Text\allowbreak{}Box} có biểu tượng \code{Segoe MDL2 Assets}, thẻ chỉ số \code{Stat\allowbreak{}Card} và bộ định dạng lưới \code{App\allowbreak{}Grid} hỗ trợ vẽ nhãn màu trạng thái (\code{Enable\allowbreak{}Badges}).
+
+
+\section{LINQ – Truy vấn dữ liệu}
+
+Language Integrated Query (LINQ) cung cấp cú pháp truy vấn dữ liệu thống nhất ngay trong ngôn ngữ C\# thông qua các toán tử mở rộng như \code{Where}, \code{Select}, \code{Group\allowbreak{}By}, \code{Order\allowbreak{}By}, \code{Sum}, \code{Any}, \code{All}, \code{First\allowbreak{}Or\allowbreak{}Default} và \code{To\allowbreak{}Dictionary} [3].
+
+
+Đối chiếu mã nguồn thực tế của dự án: hệ thống sử dụng mạnh mẽ LINQ to Objects để xử lý tập dữ liệu trong bộ nhớ tại tầng nghiệp vụ và giao diện. Ví dụ tiêu biểu gồm: gộp các dòng thiết bị trùng mã và sắp xếp theo thứ tự \code{Device\allowbreak{}Id} tăng dần nhằm chống deadlock khi lập phiếu (\code{s.\allowbreak{}Items.\allowbreak{}Group\allowbreak{}By(i =\textgreater{} i.\allowbreak{}Device\allowbreak{}Id).\allowbreak{}Order\allowbreak{}By(g =\textgreater{} g.\allowbreak{}Key)} trong \code{Loan\allowbreak{}Repository.\allowbreak{}cs}), tổng hợp số lượng thiết bị trả theo từng nhóm tình trạng tồn kho (\code{Return\allowbreak{}Repository.\allowbreak{}cs}), lọc menu điều hướng theo quyền người dùng (\code{Nav\allowbreak{}Catalog.\allowbreak{}Items.\allowbreak{}Where(i =\textgreater{} Session.\allowbreak{}Has(i.\allowbreak{}Permission))}) và lọc trạng thái tồn kho trên \code{Device\allowbreak{}Repository.\allowbreak{}Search}. Đối với truy vấn cơ sở dữ liệu SQL Server, dự án sử dụng Dapper kết hợp câu lệnh SQL tham số hóa và Stored Procedure thay vì dùng Entity Framework (\code{LINQ to Entities}).
+
+
+\section{Hệ quản trị cơ sở dữ liệu SQL Server}
+
+Microsoft SQL Server (từ phiên bản 2017 trở lên) được sử dụng để lưu trữ và bảo toàn dữ liệu cho hệ thống. Cơ sở dữ liệu \code{Quan\allowbreak{}Ly\allowbreak{}Muon\allowbreak{}Tra} khai thác sâu các cơ chế toàn vẹn của hệ quản trị quan hệ: khóa chính tự tăng (\code{IDENTITY}), khóa ngoại (\code{FOREIGN KEY}), chỉ mục duy nhất (\code{UNIQUE INDEX}) và các ràng buộc kiểm tra miền giá trị (\code{CHECK CONSTRAINT}) như bảo đảm tổng số lượng thiết bị khả dụng, hư hỏng và mất không vượt quá tổng số lượng đầu tư (\code{CK\_\allowbreak{}Devices\_\allowbreak{}Inventory}) [5].
+
+
+Ngoài ra, hệ thống sử dụng các hàm và cú pháp hiện đại của T-SQL như \code{CREATE OR ALTER}, \code{STRING\_\allowbreak{}AGG} (gộp chuỗi tên các thiết bị chưa trả trong thủ tục quá hạn), toán tử \code{CROSS APPLY} / \code{OUTER APPLY}, biểu thức bảng chung \code{CTE} (\code{WITH onloan AS .\allowbreak{}.\allowbreak{}.\allowbreak{}}) và gợi ý khóa dòng \code{WITH (UPDLOCK, HOLDLOCK)} để kiểm soát truy cập đồng thời.
+
+
+\section{Kiến trúc nhiều lớp, ADO.NET và Dapper}
+
+Chương trình được thiết kế theo kiến trúc phân lớp hướng MVP (Model – View – Presenter) nhằm tách biệt trách nhiệm giữa hiển thị, xử lý trung gian và lưu trữ dữ liệu. Thành phần View gồm \code{Forms}, \code{Pages} và thư viện \code{QuanLyMuonTra.UI}; Presenter là \code{Services}; Model gồm \code{Models} và \code{Data}. View (\code{Forms}, \code{Pages}) chỉ phụ thuộc vào Presenter (\code{Services}) và \code{Models}, tuyệt đối không viết câu lệnh SQL trực tiếp trên Form. Presenter (\code{Services}) sử dụng lớp tiện ích trung tâm \code{Svc.\allowbreak{}Run} để kiểm tra phiên đăng nhập, xác thực quyền hạn và bắt mọi ngoại lệ chuyển thành cấu trúc \code{Result\textless{}T\textgreater{}} an toàn [4], [6].
+
+
+Ở tầng truy cập dữ liệu (\code{Data}), dự án kết hợp \code{Microsoft.\allowbreak{}Data.\allowbreak{}Sql\allowbreak{}Client} (ADO.NET) với Micro-ORM \textbf{Dapper} [8]. Dapper hỗ trợ ánh xạ nhanh kết quả truy vấn SQL sang danh sách đối tượng C\# (\code{Query\textless{}T\textgreater{}}, \code{Query\allowbreak{}Single\allowbreak{}Or\allowbreak{}Default\textless{}T\textgreater{}}, \code{Execute\allowbreak{}Scalar\textless{}T\textgreater{}}) và tự động gắn tham số chống tấn công SQL Injection. Quản lý giao dịch được tập trung tại phương thức \code{Db.\allowbreak{}In\allowbreak{}Transaction}, sử dụng mức cô lập \code{Isolation\allowbreak{}Level.\allowbreak{}Read\allowbreak{}Committed} và tự động thử lại (retry) tối đa 3 lần với độ trễ tăng dần nếu gặp lỗi SQL Server Deadlock (mã lỗi \code{1205}).
+
+
+\section{Mã hóa mật khẩu và phân quyền động RBAC}
+
+Để bảo vệ mật khẩu người dùng, lớp \code{Password\allowbreak{}Hasher} sử dụng thuật toán dẫn xuất khóa chuẩn công nghiệp \textbf{PBKDF2-SHA256} (\code{Rfc2898Derive\allowbreak{}Bytes.\allowbreak{}Pbkdf2}) với 100.000 vòng lặp (\code{Iterations = 100\_\allowbreak{}000}), chuỗi muối ngẫu nhiên 16 byte (\code{Salt\allowbreak{}Size = 16}) sinh từ \code{Random\allowbreak{}Number\allowbreak{}Generator} và độ dài khóa đầu ra 32 byte. Chuỗi lưu trong cột \code{Password\allowbreak{}Hash} có định dạng \code{PBKDF2\$100000\$\textless{}base64\_\allowbreak{}salt\textgreater{}\$\textless{}base64\_\allowbreak{}hash\textgreater{}}. Khi đối chiếu mật khẩu đăng nhập, hệ thống dùng hàm \code{Cryptographic\allowbreak{}Operations.\allowbreak{}Fixed\allowbreak{}Time\allowbreak{}Equals} để so sánh mảng byte trong thời gian hằng số, ngăn chặn tấn công đo thời gian (timing attack) [7].
+
+
+Khác với cách phân quyền cứng theo tên vai trò, dự án triển khai mô hình \textbf{Phân quyền dựa trên vai trò động (Dynamic RBAC)} thông qua 4 bảng dữ liệu: \code{Users}, \code{Roles}, \code{Permissions} và \code{Role\allowbreak{}Permissions}. Hệ thống định nghĩa 17 mã quyền chi tiết trong lớp tĩnh \code{Perm}. Khi người dùng đăng nhập, tập quyền của vai trò được nạp vào \code{Session} (\code{Hash\allowbreak{}Set\textless{}string\textgreater{}}). Mọi thao tác vừa được ẩn/hiện thông minh trên giao diện, vừa được kiểm tra bắt buộc tại tầng \code{Services} qua \code{Svc.\allowbreak{}Run}.
+
+
+\section{Báo cáo tổng hợp, thống kê và in ấn biểu mẫu}
+
+Hệ thống cung cấp công cụ tổng hợp số liệu mượn trả theo khoảng thời gian và thống kê tồn kho thời gian thực tại \code{Report\allowbreak{}Page} (F15), đồng thời xếp hạng các thiết bị có tần suất mượn cao nhất tại \code{Popular\allowbreak{}Device\allowbreak{}Page} (F18). Đối với nhu cầu xuất chứng từ giấy để ký nhận, lớp \code{Print\allowbreak{}Helper} sử dụng trực tiếp thành phần \code{Print\allowbreak{}Document} và \code{Print\allowbreak{}Preview\allowbreak{}Dialog} của .NET Windows Forms để dàn trang và vẽ biểu mẫu \textbf{Phiếu mượn thiết bị} cũng như \textbf{Biên bản trả / bàn giao thiết bị} kèm đầy đủ khu vực chữ ký xác nhận của các bên liên quan mà không phụ thuộc vào thư viện báo cáo bên ngoài.
+

@@ -1,0 +1,12 @@
+\newcommand{\maunguon}[4]{\section*{#1}\addcontentsline{toc}{section}{#1}#2\par\VerbatimInput[numbers=left,numbersep=5pt]{code/#4}}
+\maunguon{Phụ lục D. Mã nguồn tiêu biểu -- Script tạo bảng dữ liệu}{Tệp \code{Database/02\_CreateTables.sql}: định nghĩa 12 bảng của cơ sở dữ liệu \code{QuanLyMuonTra}.}{SQL}{sql_01.sql}
+\maunguon{Phụ lục E. Mã nguồn tiêu biểu -- Ràng buộc và chỉ mục}{Tệp \code{Database/03\_Constraints.sql}: các ràng buộc \code{CHECK}, \code{UNIQUE}, \code{FOREIGN KEY}.}{SQL}{sql_02.sql}
+\VerbatimInput[numbers=left,numbersep=5pt]{code/sql_03.sql}
+\maunguon{Phụ lục F. Mã nguồn tiêu biểu -- View và Stored procedure}{Tệp \code{Database/05\_StoredProcedures.sql}: view tổng hợp và các thủ tục lưu trữ (kể cả \code{sp\_GetOverdueSlips}).}{SQL}{sql_04.sql}
+\maunguon{Phụ lục G. Mã nguồn tiêu biểu -- Kết nối CSDL và transaction}{Tệp \code{QuanLyMuonTra.App/Data/Db.cs}: tạo kết nối, chạy transaction và tự thử lại khi gặp deadlock.}{[Sharp]C}{cs_Db.cs}
+\maunguon{Phụ lục H. Mã nguồn tiêu biểu -- Lập phiếu mượn (tầng Data)}{Tệp \code{QuanLyMuonTra.App/Data/LoanRepository.cs}: trừ tồn kho có điều kiện trong transaction.}{[Sharp]C}{cs_LoanRepository.cs}
+\maunguon{Phụ lục I. Mã nguồn tiêu biểu -- Ghi nhận trả và hủy biên bản (tầng Data)}{Tệp \code{QuanLyMuonTra.App/Data/ReturnRepository.cs}: ghi nhận trả theo tình trạng và hoàn tác khi hủy biên bản.}{[Sharp]C}{cs_ReturnRepository.cs}
+\maunguon{Phụ lục J. Mã nguồn tiêu biểu -- Tầng nghiệp vụ (Services)}{Tệp \code{LoanService.cs}: kiểm tra quyền và dữ liệu đầu vào trước khi gọi tầng Data.}{[Sharp]C}{cs_LoanService.cs}
+\VerbatimInput[numbers=left,numbersep=5pt]{code/cs_ReturnService.cs}
+\maunguon{Phụ lục K. Mã nguồn tiêu biểu -- Băm mật khẩu và phiên đăng nhập}{Tệp \code{Security/PasswordHasher.cs} (PBKDF2-SHA256) và \code{Security/Session.cs}.}{[Sharp]C}{cs_PasswordHasher.cs}
+\VerbatimInput[numbers=left,numbersep=5pt]{code/cs_Session.cs}
