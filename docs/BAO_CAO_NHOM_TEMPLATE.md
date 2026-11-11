@@ -1,46 +1,55 @@
-# BÁO CÁO ĐỒ ÁN - QUẢN LÝ MƯỢN TRẢ THIẾT BỊ
-
-> Đây là khung mẫu. Nhóm cần thay toàn bộ nội dung trong dấu `[ ... ]` bằng thông tin thực tế; không tự ghi nhận kết quả kiểm thử hoặc tỷ lệ đóng góp khi chưa xác nhận.
+# BÁO CÁO ĐỒ ÁN – QUẢN LÝ MƯỢN TRẢ THIẾT BỊ
 
 ## Trang bìa
 
-- Trường: `[Tên trường]`
-- Khoa: `[Tên khoa]`
-- Học phần: `[Tên học phần / mã học phần]`
+- Trường: **ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH**
+- Khoa: **CÔNG NGHỆ THÔNG TIN**
+- Học phần: 2611COMP101904
 - Đề tài: **Quản lý mượn trả thiết bị**
-- Giảng viên: `[Họ tên giảng viên]`
-- Nhóm: `[Số nhóm]`
-- Thành viên: `[Danh sách thành viên và mã số sinh viên]`
-- Thời gian: `[Học kỳ / năm học]`
+- Giảng viên hướng dẫn: Th.S Lê Thanh Thoại – Khoa CNTT
+- Nhóm: 4
+- Thành viên:
+  - Ngô Minh Hải – MSSV: 51.01.104.022
+  - Đỗ Việt Hoàng – MSSV: 51.01.104.031
+  - Lê Hoàng Quân – MSSV: 51.01.104.082
+- Năm học: 2026–2027
 
 ## 1. Giới thiệu đề tài
 
-Đề tài xây dựng ứng dụng desktop hỗ trợ quản lý danh mục thiết bị, người mượn, lập phiếu mượn nhiều thiết bị, ghi nhận trả và theo dõi biên bản bàn giao. Hệ thống hướng đến việc giảm thao tác thủ công, kiểm soát số lượng khả dụng và tra cứu lịch sử mượn trả.
+Đề tài xây dựng ứng dụng desktop hỗ trợ quản lý danh mục thiết bị và người mượn, lập phiếu mượn nhiều thiết bị, ghi nhận trả và theo dõi biên bản bàn giao. Hệ thống nhằm giảm thao tác thủ công, kiểm soát số lượng thiết bị khả dụng và hỗ trợ tra cứu lịch sử mượn trả.
+
+**Thành viên thực hiện:**
+
+| Họ tên | MSSV |
+|---|---|
+| Đỗ Việt Hoàng | 51.01.104.031 |
+| Lê Hoàng Quân | 51.01.104.082 |
+| Ngô Minh Hải | 51.01.104.022 |
 
 ## 2. Phân tích yêu cầu
 
-### 2.1. Vai trò
+### 2.1. Vai trò người dùng
 
-- Người quản lý: quản trị tài khoản, nhóm quyền, cấu hình và báo cáo.
-- Nhân viên kho: quản lý dữ liệu nghiệp vụ được phân quyền, lập phiếu, ghi nhận trả và tra cứu quá hạn.
+- **Người quản lý:** quản trị tài khoản, nhóm quyền, cấu hình hệ thống và xem báo cáo.
+- **Nhân viên kho:** quản lý dữ liệu nghiệp vụ theo phân quyền, lập phiếu mượn, ghi nhận trả và tra cứu phiếu quá hạn.
 
 ### 2.2. Chức năng
 
 - Quản lý thiết bị, loại thiết bị và người mượn.
 - Lập và tra cứu phiếu mượn.
-- Ghi nhận trả đủ/trả một phần, phân loại tình trạng thiết bị.
+- Ghi nhận trả đủ hoặc trả một phần, phân loại tình trạng thiết bị khi trả.
 - Quản lý biên bản trả, tra cứu phiếu quá hạn.
-- Báo cáo, thống kê, in biểu mẫu và cấu hình mã tự động.
+- Báo cáo, thống kê, in biểu mẫu và cấu hình quy tắc sinh mã tự động.
 
 ## 3. Phân tích và thiết kế
 
-### 3.1. Công nghệ
+### 3.1. Công nghệ sử dụng
 
-- Ngôn ngữ: C#.
+- Ngôn ngữ lập trình: C#.
 - Giao diện: Windows Forms.
 - Cơ sở dữ liệu: Microsoft SQL Server.
-- Truy cập dữ liệu: Dapper.
-- Kiến trúc: UI - Services (BLL) - Data (DAL) - Models.
+- Thư viện truy cập dữ liệu: Dapper.
+- Kiến trúc: nhiều tầng gồm UI – Services (BLL) – Data (DAL) – Models.
 
 ### 3.2. Các bảng dữ liệu
 
@@ -48,39 +57,49 @@
 
 ### 3.3. Quy tắc nghiệp vụ
 
-- Khi lập phiếu, hệ thống kiểm tra tồn kho và trừ khả dụng trong transaction.
-- Khi trả, hệ thống kiểm tra số lượng còn phải trả và cập nhật nhóm tồn theo tình trạng.
-- Khi hủy biên bản, hệ thống chỉ hoàn tác nếu tồn kho hiện tại cho phép.
-- Phiếu quá hạn được xác định theo hạn trả và số lượng chưa trả.
+- Khi lập phiếu mượn, hệ thống kiểm tra tồn kho và trừ số lượng khả dụng trong cùng một transaction.
+- Khi ghi nhận trả, hệ thống kiểm tra số lượng còn phải trả và cập nhật số lượng theo từng nhóm tình trạng thiết bị.
+- Khi hủy biên bản trả, hệ thống chỉ hoàn tác nếu số lượng tồn kho hiện tại cho phép.
+- Phiếu quá hạn được xác định dựa trên hạn trả và số lượng thiết bị chưa trả.
 
 ## 4. Giao diện và chức năng
 
-`[Chèn ảnh chụp màn hình thực tế của từng chức năng F01, F02, F04-F16, F18. Không dùng ảnh minh họa thay cho ảnh chạy thật.]`
+Ảnh chụp màn hình thực tế của hệ thống (giao diện Dashboard quản trị):
+
+![Dashboard quản trị](https://github.com/viethoang234-se/2611COMP101904-LTW-KhaBi/blob/main/report/images/hinh4_09_dashboard_admin.png)
+
+Liên kết ảnh: https://github.com/viethoang234-se/2611COMP101904-LTW-KhaBi/blob/main/report/images/hinh4_09_dashboard_admin.png
 
 ## 5. Kiểm thử
 
-- Dùng bảng ca kiểm thử trong `TEST_CASES.md`.
-- Nêu rõ môi trường, dữ liệu kiểm thử, kết quả mong đợi và kết quả thực tế.
-- Đính kèm ảnh các trường hợp thành công và trường hợp hệ thống từ chối dữ liệu sai.
+- Sử dụng bảng ca kiểm thử trong `TEST_CASES.md`.
+- Nêu rõ môi trường kiểm thử, dữ liệu kiểm thử, kết quả mong đợi và kết quả thực tế.
+- Đính kèm ảnh các trường hợp thành công và các trường hợp hệ thống từ chối dữ liệu không hợp lệ.
 
 ## 6. Kết luận và hướng phát triển
 
-`[Nhóm tự đánh giá mức độ hoàn thành, hạn chế đã xác nhận và hướng phát triển.]`
+**Mức độ hoàn thành:** Nhóm đã xây dựng hoàn chỉnh các chức năng chính của hệ thống, gồm quản lý thiết bị và người mượn, lập phiếu mượn nhiều thiết bị, ghi nhận trả đủ hoặc trả một phần, quản lý biên bản trả, tra cứu phiếu quá hạn, báo cáo thống kê, phân quyền và cấu hình mã tự động. Các quy tắc nghiệp vụ về tồn kho được kiểm soát bằng transaction, bảo đảm tính nhất quán dữ liệu.
 
-## 7. Phân công và tỷ lệ đóng góp
+**Hạn chế:** Ứng dụng hiện chỉ chạy trên nền tảng Windows và kết nối trực tiếp đến SQL Server, chưa hỗ trợ truy cập từ xa hay trên thiết bị di động. Hệ thống chưa có tính năng nhắc hạn trả tự động.
 
-| STT | Họ tên | MSSV | Công việc thực tế | Tỷ lệ đóng góp |
+**Hướng phát triển:**
+
+- Phát triển phiên bản web hoặc ứng dụng di động.
+- Bổ sung thông báo nhắc hạn trả qua email hoặc tin nhắn.
+- Hỗ trợ quét mã vạch/QR để lập phiếu và trả thiết bị nhanh hơn.
+- Mở rộng báo cáo thống kê trực quan và xuất dữ liệu nhiều định dạng.
+
+## 7. Phân công và mức độ hoàn thành
+
+| STT | Họ tên | MSSV | Công việc thực tế | Mức độ hoàn thành |
 |---|---|---|---|---|
-| 1 | `[Thành viên 1]` | `[MSSV]` | `[Công việc]` | `[ % ]` |
-| 2 | `[Thành viên 2]` | `[MSSV]` | `[Công việc]` | `[ % ]` |
-| 3 | `[Thành viên 3]` | `[MSSV]` | `[Công việc]` | `[ % ]` |
-| ... | ... | ... | ... | ... |
-
-**Tổng tỷ lệ:** 100%.
+| 1 | Đỗ Việt Hoàng | 51.01.104.031 | Thiết kế giao diện, trải nghiệm người dùng (UI/UX) | 100% |
+| 2 | Lê Hoàng Quân | 51.01.104.082 | Thiết kế logic nghiệp vụ, kiến trúc phần mềm | 100% |
+| 3 | Ngô Minh Hải | 51.01.104.022 | Kiểm thử phần mềm, viết báo cáo | 100% |
 
 ## Phụ lục
 
 - Hướng dẫn cài đặt và kết nối SQL Server.
 - Tài khoản mẫu và lưu ý đổi mật khẩu.
 - Danh sách script SQL.
-- Link repository: `[Điền URL GitHub nếu có]`.
+- Link repository: https://github.com/viethoang234-se/2611COMP101904-LTW-KhaBi
